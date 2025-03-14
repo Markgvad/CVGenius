@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Genius - Pricing</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        .pricing-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin: 3rem auto;
+            max-width: 1200px;
+        }
+        
+        .pricing-plan {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            width: 300px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        
+        .pricing-plan:hover {
+            transform: translateY(-5px);
+        }
+        
+        .pricing-plan.popular {
+            border: 2px solid #4c7bf3;
+            transform: scale(1.05);
+        }
+        
+        .pricing-plan.popular::before {
+            content: "Most Popular";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4c7bf3;
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .plan-price span {
+            font-size: 1rem;
+            color: #666;
+        }
+        
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin: 2rem 0;
+            text-align: left;
+        }
+        
+        .plan-features li {
+            margin-bottom: 0.75rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .plan-features li::before {
+            content: "✓";
+            color: #4c7bf3;
+            position: absolute;
+            left: 0;
+        }
+        
+        .subscribe-btn {
+            background-color: #4c7bf3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        
+        .subscribe-btn:hover {
+            background-color: #3a67d4;
+        }
+        
+        .free-btn {
+            background-color: #28a745;
+        }
+        
+        .free-btn:hover {
+            background-color: #218838;
+        }
+        
+        /* Loading indicator */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Current plan indicator */
+        .current-plan {
+            background-color: #e8f4ff;
+            border: 2px solid #4c7bf3;
+        }
+        
+        .current-plan-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: #4c7bf3;
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">CV Genius</div>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="pricing.html" class="active">Pricing</a></li>
+                <li id="loginLink"><a href="login.html">Login</a></li>
+                <li id="registerLink"><a href="register.html">Register</a></li>
+                <li id="dashboardLink" style="display: none;"><a href="dashboard.html">Dashboard</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <section class="hero">
+            <h1>Choose Your Plan</h1>
+            <p>Select the plan that best suits your needs</p>
+        </section>
+        
+        <section class="pricing-container">
+            <div class="pricing-plan" id="free-plan-card">
+                <div class="plan-name">Free</div>
+                <div class="plan-price">$0 <span>/3 months</span></div>
+                <ul class="plan-features">
+                    <li>Create 1 CV</li>
+                    <li>Hosting for 3 months</li>
+                    <li>Basic templates</li>
+                    <li>PDF download</li>
+                </ul>
+                <button class="subscribe-btn free-btn" id="free-plan-btn">Get Started</button>
+            </div>
+            
+            <div class="pricing-plan" id="standard-plan-card">
+                <div class="plan-name">Standard</div>
+                <div class="plan-price">$10 <span>/year</span></div>
+                <ul class="plan-features">
+                    <li>Create 1 CV</li>
+                    <li>Hosting for 1 year</li>
+                    <li>All templates</li>
+                    <li>PDF download</li>
+                    <li>Landing page</li>
+                </ul>
+                <button class="subscribe-btn" id="standard-plan-btn">Subscribe</button>
+            </div>
+            
+            <div class="pricing-plan popular" id="premium-plan-card">
+                <div class="plan-name">Premium</div>
+                <div class="plan-price">$29 <span>/year</span></div>
+                <ul class="plan-features">
+                    <li>Create up to 3 CVs</li>
+                    <li>Hosting for 1 year</li>
+                    <li>All templates</li>
+                    <li>PDF download</li>
+                    <li>Landing page</li>
+                    <li>Detailed analytics</li>
+                </ul>
+                <button class="subscribe-btn" id="premium-plan-btn">Subscribe</button>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 CV Genius. All rights reserved.</p>
+    </footer>
+    
+ <script>
+    // Initialize Stripe with your publishable key
+    const stripeKey = 'pk_test_51R2Er41rC5nG312vLuJtpZWB8U1140pxGChn0bLBADfdGtBvPeaebb6SDSg6aU963CzWx19JVyN81U8L4gmaSZtg00p8Zb1C9i';
+    const stripe = Stripe(stripeKey);
+        
+        // Handle button clicks
+        document.getElementById('free-plan-btn').addEventListener('click', () => {
+            // For free plan, just redirect to CV editor
+            window.location.href = '/cv-editor.html';
+        });
+        
+        document.getElementById('standard-plan-btn').addEventListener('click', async (e) => {
+            const button = e.target;
+            button.disabled = true;
+            button.innerHTML = '<span class="loading"></span> Processing...';
+            await createCheckoutSession('standard');
+            button.disabled = false;
+            button.innerHTML = 'Subscribe';
+        });
+        
+        document.getElementById('premium-plan-btn').addEventListener('click', async (e) => {
+            const button = e.target;
+            button.disabled = true;
+            button.innerHTML = '<span class="loading"></span> Processing...';
+            await createCheckoutSession('premium');
+            button.disabled = false;
+            button.innerHTML = 'Subscribe';
+        });
+        
+        async function createCheckoutSession(plan) {
+            try {
+                const response = await fetch('/api/payments/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ plan }),
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to create checkout session');
+                }
+                
+                const session = await response.json();
+                
+                // Redirect to Stripe checkout
+                if (session.sessionId) {
+                    stripe.redirectToCheckout({ sessionId: session.sessionId });
+                } else {
+                    alert('Failed to create checkout session');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert(error.message || 'An error occurred. Please try again.');
+            }
+        }
+        
+        // Check authentication and subscription status
+        async function checkAuthAndSubscription() {
+            try {
+                // Check if user is logged in
+                const authResponse = await fetch('/api/auth/me', {
+                    credentials: 'include'
+                });
+                
+                if (!authResponse.ok) {
+                    // Not logged in, show login/register links and handle free plan button
+                    document.getElementById('loginLink').style.display = 'inline-block';
+                    document.getElementById('registerLink').style.display = 'inline-block';
+                    document.getElementById('dashboardLink').style.display = 'none';
+                    
+                    // Make paid plans redirect to login
+                    ['standard-plan-btn', 'premium-plan-btn'].forEach(id => {
+                        document.getElementById(id).addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            alert('Please log in to subscribe to a plan');
+                            window.location.href = '/login.html?redirect=/pricing.html';
+                        });
+                    });
+                    
+                    return;
+                }
+                
+                // User is logged in
+                document.getElementById('loginLink').style.display = 'none';
+                document.getElementById('registerLink').style.display = 'none';
+                document.getElementById('dashboardLink').style.display = 'inline-block';
+                
+                // Check current subscription
+                const subscriptionResponse = await fetch('/api/payments/subscription-status', {
+                    credentials: 'include'
+                });
+                
+                if (subscriptionResponse.ok) {
+                    const data = await subscriptionResponse.json();
+                    const currentPlan = data.tier;
+                    
+                    // Mark current plan
+                    document.getElementById(`${currentPlan}-plan-card`).classList.add('current-plan');
+                    
+                    // Add "Current Plan" badge
+                    const badge = document.createElement('div');
+                    badge.className = 'current-plan-badge';
+                    badge.textContent = 'Current';
+                    document.getElementById(`${currentPlan}-plan-card`).appendChild(badge);
+                    
+                    // Disable current plan button
+                    const planButton = document.getElementById(`${currentPlan}-plan-btn`);
+                    planButton.textContent = 'Current Plan';
+                    planButton.disabled = true;
+                    
+                    // Change button text for higher tier plans
+                    if (currentPlan === 'free') {
+                        document.getElementById('standard-plan-btn').textContent = 'Upgrade';
+                        document.getElementById('premium-plan-btn').textContent = 'Upgrade';
+                    } else if (currentPlan === 'standard') {
+                        document.getElementById('premium-plan-btn').textContent = 'Upgrade';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking auth status:', error);
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', checkAuthAndSubscription);
+    </script>
+</body>
+</html>
