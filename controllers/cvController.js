@@ -10,6 +10,9 @@ const logger = require('../utils/logger');
 const gcsService = require('../services/storage/gcsService');
 const { cvUpload, imageUpload, handleGCSUpload } = require('../middleware/gcsUpload');
 
+// Define temp directory - ensure this is the same as in server.js
+const tempDir = path.join(path.resolve(path.join(__dirname, '..')), 'temp-uploads');
+
 // In-memory fallback storage
 const inMemoryCVs = new Map();
 let useInMemoryStorage = false;
@@ -332,23 +335,73 @@ exports.uploadCV = async (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
     
-    // First verify the file exists on disk
-    if (!fs.existsSync(req.file.path)) {
-      logger.error(`Uploaded file not found at path: ${req.file.path}`);
+    // Check if either the local file exists or we have a successful GCS upload
+    const hasLocalFile = fs.existsSync(req.file.path);
+    const hasGcsUpload = req.file.publicUrl && req.file.gcs;
+    
+    if (!hasLocalFile && !hasGcsUpload) {
+      logger.error(`Uploaded file not found at path: ${req.file.path} and no GCS upload available`);
       return res.status(500).json({ error: 'File upload failed. The file could not be saved correctly.' });
+    }
+    
+    if (!hasLocalFile) {
+      logger.warn(`Local file not found at ${req.file.path}, but GCS upload is available: ${req.file.publicUrl}`);
     }
     
     logger.info(`File uploaded: ${req.file.originalname} (${req.file.size} bytes)`);
     
-    // Extract text from the uploaded file BEFORE uploading to GCS
-    // This ensures we extract the text while the file is still available locally
-    const filePath = req.file.path;
-    logger.info(`Attempting to extract text from file at path: ${filePath}`);
-    logger.info(`File exists check: ${fs.existsSync(filePath)}`);
-    logger.info(`Working directory: ${process.cwd()}`);
+    // Extract text from the uploaded file 
+    let extractedText;
     
-    // Extract text while the local file still exists
-    const extractedText = await extractTextFromFile(filePath, req.file.mimetype);
+    if (hasLocalFile) {
+      // If local file exists, extract directly
+      const filePath = req.file.path;
+      logger.info(`Attempting to extract text from local file at path: ${filePath}`);
+      logger.info(`File exists check: ${fs.existsSync(filePath)}`);
+      logger.info(`Working directory: ${process.cwd()}`);
+      
+      extractedText = await extractTextFromFile(filePath, req.file.mimetype);
+    } else if (hasGcsUpload) {
+      // If no local file but we have GCS upload, download to temp and extract
+      try {
+        logger.info(`Local file missing. Downloading from GCS URL for processing: ${req.file.publicUrl}`);
+        
+        // Download to a new temporary file
+        const axios = require('axios');
+        const tempFilePath = path.join(tempDir, `gcs-download-${Date.now()}-${path.basename(req.file.path)}`);
+        
+        const response = await axios({
+          method: 'get',
+          url: req.file.publicUrl,
+          responseType: 'stream'
+        });
+        
+        // Create write stream and save file
+        const writer = fs.createWriteStream(tempFilePath);
+        response.data.pipe(writer);
+        
+        await new Promise((resolve, reject) => {
+          writer.on('finish', resolve);
+          writer.on('error', reject);
+        });
+        
+        logger.info(`Downloaded GCS file to temp location: ${tempFilePath}`);
+        
+        // Now extract text from the downloaded file
+        extractedText = await extractTextFromFile(tempFilePath, req.file.mimetype);
+        
+        // Clean up the temporary download
+        fs.unlink(tempFilePath, (err) => {
+          if (err) logger.warn(`Failed to delete temporary GCS download: ${tempFilePath}`, err);
+          else logger.debug(`Deleted temporary GCS download: ${tempFilePath}`);
+        });
+      } catch (downloadError) {
+        logger.error('Error downloading from GCS for text extraction:', downloadError);
+        throw new Error('Failed to process file: ' + downloadError.message);
+      }
+    } else {
+      throw new Error('Neither local file nor GCS upload is available for processing');
+    }
     logger.debug(`Successfully extracted ${extractedText.length} characters of text from file`);
     
     // Now we can upload to GCS after text extraction is done

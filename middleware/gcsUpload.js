@@ -95,7 +95,7 @@ const handleGCSUpload = (folder) => {
         
         try {
           // Upload the file to GCS
-          const result = await gcsService.uploadFile(req.file, folder);
+          const result = await gcsService.uploadFile(req.file, folder, true); // Set keepLocalFile to true
           
           // Update req.file with GCS information
           req.file.gcs = result;
