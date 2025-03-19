@@ -10,8 +10,11 @@ const logger = require('../utils/logger');
 const gcsService = require('../services/storage/gcsService');
 const { cvUpload, imageUpload, handleGCSUpload } = require('../middleware/gcsUpload');
 
-// Define temp directory - ensure this is the same as in server.js
-const tempDir = path.join(path.resolve(path.join(__dirname, '..')), 'temp-uploads');
+// Define temp directory - handle both development and production paths
+const rootDir = process.env.NODE_ENV === 'production' ? 
+  '/opt/render/project/src' :  // Production path on Render
+  path.resolve(path.join(__dirname, '..')); // Development path
+const tempDir = path.join(rootDir, 'temp-uploads');
 
 // In-memory fallback storage
 const inMemoryCVs = new Map();

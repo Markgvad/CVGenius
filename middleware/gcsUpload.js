@@ -16,14 +16,26 @@ const useGCS = process.env.USE_GCS === 'true';
  */
 const tempStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Use absolute path for more reliability - ensuring we use the same path as in server.js
-    const rootDir = path.resolve(path.join(__dirname, '..'));
+    // Use absolute path for more reliability - handling both dev and production environments
+    const rootDir = process.env.NODE_ENV === 'production' ? 
+      '/opt/render/project/src' :  // Production path on Render
+      path.resolve(path.join(__dirname, '..')); // Development path
     const tempDir = path.join(rootDir, 'temp-uploads');
+    
     // Log the absolute path for debugging
     logger.info(`Temp directory absolute path: ${path.resolve(tempDir)}`);
     if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir, { recursive: true });
-      logger.info(`Created temporary upload directory: ${tempDir}`);
+      try {
+        fs.mkdirSync(tempDir, { recursive: true });
+        logger.info(`Created temporary upload directory: ${tempDir}`);
+      } catch (dirError) {
+        logger.error(`Failed to create temp directory: ${dirError.message}`);
+        // Try alternative directory in case of permission issues
+        const altTempDir = path.join(process.env.TEMP || '/tmp', 'cvgenius-uploads');
+        logger.info(`Trying alternative temp directory: ${altTempDir}`);
+        fs.mkdirSync(altTempDir, { recursive: true });
+        return cb(null, altTempDir);
+      }
     }
     cb(null, tempDir);
   },

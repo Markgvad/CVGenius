@@ -6,11 +6,36 @@ const MongoStore = require('connect-mongo');
 const path = require('path');
 const fs = require('fs');
 
-// Ensure temp upload directory exists
-const tempDir = path.join(__dirname, 'temp-uploads');
-if (!fs.existsSync(tempDir)) {
-  fs.mkdirSync(tempDir, { recursive: true });
-  console.log(`Created temporary upload directory: ${tempDir}`);
+// Ensure temp upload directory exists - handle both dev and production environments
+const rootDir = process.env.NODE_ENV === 'production' ? 
+  '/opt/render/project/src' :  // Production path on Render
+  __dirname; // Development path
+const tempDir = path.join(rootDir, 'temp-uploads');
+
+try {
+  if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir, { recursive: true });
+    console.log(`Created temporary upload directory: ${tempDir}`);
+  }
+  
+  // Verify permissions by writing a test file
+  const testFilePath = path.join(tempDir, '.write-test');
+  fs.writeFileSync(testFilePath, 'Test write permissions');
+  fs.unlinkSync(testFilePath);
+  console.log(`Temp directory ${tempDir} is writable`);
+} catch (dirError) {
+  console.error(`Error with temp directory ${tempDir}:`, dirError.message);
+  // Try alternative temp directory
+  const altTempDir = path.join(process.env.TEMP || '/tmp', 'cvgenius-uploads');
+  console.log(`Trying alternative temp directory: ${altTempDir}`);
+  
+  if (!fs.existsSync(altTempDir)) {
+    fs.mkdirSync(altTempDir, { recursive: true });
+  }
+  console.log(`Created alternative temporary upload directory: ${altTempDir}`);
+  
+  // Set environment variable to inform other parts of the app
+  process.env.CV_TEMP_DIR = altTempDir;
 }
 
 // Log the resolved path for debugging
