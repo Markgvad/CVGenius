@@ -1,0 +1,1899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVgenius - Create Standout Resumes</title>
+    <style>
+        :root {
+            --primary: #003459;
+            --secondary: #007ea7;
+            --accent: #00a8e8;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #dee2e6;
+            --success: #28a745;
+            --card-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.08);
+            --transition: all 0.25s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -12px;
+        }
+
+        .col {
+            flex: 1;
+            padding: 0 12px;
+        }
+
+        /* Button Styles */
+        .cta-button {
+            background-color: var(--accent);
+            color: white !important;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .cta-button:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 126, 167, 0.2);
+        }
+
+        .outline-button {
+            background-color: transparent;
+            color: var(--primary) !important;
+            border: 2px solid var(--primary);
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .outline-button:hover {
+            background-color: rgba(0, 52, 89, 0.05);
+            transform: translateY(-2px);
+        }
+
+        /* Section Titles */
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .section-title p {
+            font-size: 1.25rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            padding: 80px 0;
+            background-color: white;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-top: 40px;
+        }
+
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 70px;
+            left: 120px;
+            right: 120px;
+            height: 4px;
+            background-color: var(--border);
+            z-index: 1;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            padding: 0 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-icon {
+            width: 140px;
+            height: 140px;
+            background-color: white;
+            border-radius: 50%;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid var(--accent);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .step:hover .step-icon {
+            transform: scale(1.1);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .step-number {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+
+        .step-icon i {
+            font-size: 40px;
+            color: var(--accent);
+        }
+
+        .step h3 {
+            font-size: 1.25rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .step p {
+            color: var(--gray);
+        }
+
+        /* CV Preview Section */
+        .cv-preview-section {
+            padding: 80px 0;
+            background: linear-gradient(165deg, #f8f9fa 50%, #e9ecef 50%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-container {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .preview-content {
+            flex: 0 0 30%; /* Reduced width from 50% to 30% */
+        }
+
+        .preview-content h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .preview-content p {
+            font-size: 1rem;
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+
+        .feature-list {
+            margin-bottom: 25px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .feature-icon {
+            width: 22px;
+            height: 22px;
+            background-color: rgba(0, 168, 232, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .feature-icon i {
+            color: var(--accent);
+            font-size: 10px;
+        }
+
+        .preview-image {
+            flex: 0 0 68%; /* Increased width from 50% to 68% */
+            position: relative;
+            box-shadow: var(--card-shadow);
+            border-radius: 12px;
+            overflow: hidden;
+            height: 750px; /* Increased from 700px */
+            background-color: white;
+            transition: var(--transition);
+        }
+
+        .preview-image:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .cv-preview-frame {
+            width: 100%;
+            height: 100%;
+            transform-origin: top left;
+            transform: scale(0.88); /* Slightly increased from 0.85 */
+            width: 114%; /* Adjusted from 118% */
+            height: 114%; /* Adjusted from 118% */
+            overflow: auto;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            padding: 80px 0;
+            background-color: white;
+        }
+
+        .upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .file-drop-area {
+            width: 100%;
+            height: 220px;
+            border: 3px dashed var(--border);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            background-color: var(--light);
+            position: relative;
+        }
+
+        .file-drop-area:hover, .file-drop-area.active {
+            background-color: rgba(0, 168, 232, 0.05);
+            border-color: var(--accent);
+        }
+
+        .file-drop-area i {
+            font-size: 50px;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .file-drop-area p {
+            font-size: 1.2rem;
+            color: var(--gray);
+            text-align: center;
+        }
+
+        /* NEW Simple upload styles */
+        .simple-upload-box {
+            background-color: var(--light);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            width: 100%;
+            border: 2px dashed var(--border);
+        }
+
+        .simple-upload-box i {
+            font-size: 50px;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .simple-upload-box h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .simple-upload-box p {
+            margin-bottom: 25px;
+            color: var(--gray);
+        }
+
+        .file-btn {
+            background-color: var(--accent);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        .file-btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 126, 167, 0.2);
+        }
+
+        .selected-file {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            background-color: var(--light);
+            width: 100%;
+        }
+
+        .selected-file p {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .selected-file i {
+            color: var(--accent);
+        }
+
+        .upload-button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+        }
+
+        /* Selected file info styles - NEW */
+        #selected-file-info {
+            display: none;
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #d4edda;
+            border-radius: 8px;
+            color: #155724;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #selected-file-info i {
+            margin-right: 10px;
+            color: #28a745;
+        }
+
+        /* CV Page Styles for Preview */
+        .cv-page {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-gap: 24px;
+            padding: 30px;
+            background-color: white;
+        }
+
+        /* CV Header */
+        .cv-header {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-gap: inherit;
+            margin-bottom: 20px;
+        }
+
+        .cv-identity {
+            grid-column: span 8;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .cv-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            color: var(--primary);
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+
+        .cv-profession {
+            font-size: 1.25rem;
+            color: var(--secondary);
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .cv-contact {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .cv-contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gray);
+            transition: var(--transition);
+        }
+
+        .cv-contact-item:hover {
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .cv-contact-item i {
+            color: var(--secondary);
+        }
+
+        .cv-photo {
+            grid-column: span 4;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .cv-photo-frame {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid white;
+            box-shadow: var(--card-shadow);
+        }
+
+        .cv-photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* CV Profile */
+        .cv-profile {
+            grid-column: span 12;
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 24px;
+        }
+
+        .cv-section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--accent);
+            display: inline-block;
+        }
+
+        .cv-profile-content {
+            font-size: 1rem;
+            color: var(--dark);
+            line-height: 1.7;
+        }
+
+        /* CV Metrics */
+        .cv-metrics {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .cv-metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+            border-top: 4px solid var(--accent);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: transform 0.5s ease, opacity 0.5s ease, box-shadow 0.3s ease;
+        }
+
+        .cv-metric-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .cv-metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .cv-metric-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 18px;
+            color: var(--accent);
+            opacity: 0.2;
+        }
+
+        .cv-metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+
+        .cv-metric-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* CV Main Content */
+        .cv-experience {
+            grid-column: span 8;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .cv-experience-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .cv-experience-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.08);
+        }
+
+        .cv-experience-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--accent);
+            border-radius: 4px 0 0 4px;
+        }
+
+        .cv-job-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .cv-job-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .cv-job-company {
+            font-weight: 500;
+            color: var(--secondary);
+            margin-bottom: 12px;
+        }
+
+        .cv-job-date {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Achievement items with expanding/collapsing functionality */
+        .cv-achievements {
+            margin-left: 0;
+            list-style-type: none;
+        }
+
+        .cv-achievement-item {
+            margin-bottom: 12px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.3s ease;
+        }
+
+        .cv-achievement-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .cv-achievement-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .cv-achievement-item:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        .cv-achievement-header {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            background-color: white;
+            transition: var(--transition);
+        }
+
+        .cv-achievement-header:hover {
+            background-color: rgba(0, 168, 232, 0.05);
+        }
+
+        .cv-achievement-title {
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .cv-achievement-toggle {
+            color: var(--gray);
+            font-size: 0.8rem;
+            transition: var(--transition);
+        }
+
+        .cv-achievement-content {
+            padding: 0 16px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .cv-achievement-content p {
+            margin-bottom: 12px;
+            color: var(--dark);
+            font-size: 0.85rem;
+        }
+
+        .cv-achievement-item.active .cv-achievement-content {
+            padding: 0 16px 16px;
+            max-height: 300px;
+        }
+
+        .cv-achievement-item.active .cv-achievement-toggle i {
+            transform: rotate(180deg);
+        }
+
+        /* CV Side Column */
+        .cv-side-column {
+            grid-column: span 4;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .cv-skills, .cv-education, .cv-languages {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .cv-skill-category {
+            margin-bottom: 20px;
+        }
+
+        .cv-skill-category:last-child {
+            margin-bottom: 0;
+        }
+
+        .cv-category-name {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cv-category-name i {
+            color: var(--accent);
+        }
+
+        .cv-skill-item {
+            margin-bottom: 12px;
+        }
+
+        .cv-skill-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .cv-skill-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .cv-skill-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .cv-skill-level {
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+
+        .cv-progress-bar {
+            height: 6px;
+            background-color: var(--light);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .cv-progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--secondary), var(--accent));
+            border-radius: 3px;
+            width: 0%; /* Start with 0 width */
+            transition: width 1.5s cubic-bezier(0.1, 0.8, 0.2, 1); /* Smoother animation curve */
+        }
+
+        .cv-course-item {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cv-course-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .cv-course-name {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        .cv-course-provider {
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+
+        .cv-language-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cv-language-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .cv-language-name {
+            font-weight: 500;
+        }
+
+        .cv-language-proficiency {
+            background: var(--light);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--secondary);
+        }
+
+        /* Simplified Footer */
+        .footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-logo i {
+            color: var(--accent);
+        }
+
+        /* Loading animation */
+        .loading-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 168, 232, 0.2);
+            border-top: 5px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Navigation menu - Added for improved UI */
+        .site-header {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .site-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .site-logo i {
+            color: var(--accent);
+        }
+        
+        .header-nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .nav-link:hover {
+            color: var(--accent);
+        }
+        
+        .nav-button {
+            padding: 8px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .login-btn {
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            background: transparent;
+        }
+        
+        .login-btn:hover {
+            background-color: rgba(0, 52, 89, 0.05);
+        }
+        
+        .signup-btn {
+            background-color: var(--accent);
+            color: white;
+            border: 1px solid var(--accent);
+        }
+        
+        .signup-btn:hover {
+            background-color: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 1200px) {
+            .steps::before {
+                left: 80px;
+                right: 80px;
+            }
+            
+            .preview-content {
+                flex: 0 0 35%;
+            }
+            
+            .preview-image {
+                flex: 0 0 62%;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .preview-container {
+                flex-direction: column;
+                gap: 40px;
+            }
+            
+            .preview-content, .preview-image {
+                flex: 0 0 100%;
+                width: 100%;
+            }
+            
+            .steps {
+                flex-direction: column;
+                gap: 50px;
+            }
+            
+            .steps::before {
+                display: none;
+            }
+            
+            .step {
+                display: flex;
+                align-items: center;
+                text-align: left;
+                gap: 30px;
+            }
+            
+            .step-icon {
+                margin: 0;
+                width: 100px;
+                height: 100px;
+            }
+            
+            .cv-preview-frame {
+                transform: scale(0.7);
+                width: 143%;
+                height: 143%;
+            }
+
+            .cv-metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header-nav {
+                gap: 10px;
+            }
+            
+            .nav-link {
+                font-size: 0.9rem;
+            }
+            
+            .nav-button {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .preview-image {
+                height: 580px;
+            }
+
+            .cv-achievement-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .cv-achievement-title {
+                font-size: 0.85rem;
+            }
+            
+            .cv-achievement-toggle {
+                position: absolute;
+                right: 16px;
+                top: 12px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .preview-image {
+                height: 480px;
+            }
+            
+            .cv-preview-frame {
+                transform: scale(0.6);
+                width: 167%;
+                height: 167%;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem;
+            }
+
+            .cv-metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
+        .delay-3 { transition-delay: 0.3s; }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="site-header">
+        <div class="container header-container">
+            <a href="/" class="site-logo">
+                <i class="fas fa-file-alt"></i>
+                <span>CVgenius</span>
+            </a>
+            <nav class="header-nav" id="navigation">
+                <a href="/pricing.html" class="nav-link">Pricing</a>
+                <a href="/dashboard.html" class="nav-link">Dashboard</a>
+                <a href="/login.html" class="nav-button login-btn">Log In</a>
+                <a href="/register.html" class="nav-button signup-btn">Sign Up</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <div class="section-title">
+                <h2 class="fade-in">How It Works</h2>
+                <p class="fade-in delay-1">Create your professional CV in 4 simple steps</p>
+            </div>
+            <div class="steps">
+                <div class="step fade-in">
+                    <div class="step-icon">
+                        <i class="fas fa-upload"></i>
+                        <div class="step-number">1</div>
+                    </div>
+                    <div class="step-content">
+                        <h3>Upload your existing CV</h3>
+                        <p>Upload your existing CV to get started</p>
+                    </div>
+                </div>
+                <div class="step fade-in delay-1">
+                    <div class="step-icon">
+                        <i class="fas fa-robot"></i>
+                        <div class="step-number">2</div>
+                    </div>
+                    <div class="step-content">
+                        <h3>Our AI formats and optimizes</h3>
+                        <p>Our AI automatically formats and optimizes your content to fit our editor</p>
+                    </div>
+                </div>
+                <div class="step fade-in delay-2">
+                    <div class="step-icon">
+                        <i class="fas fa-edit"></i>
+                        <div class="step-number">3</div>
+                    </div>
+                    <div class="step-content">
+                        <h3>You edit</h3>
+                        <p>You edit, whatever needs changing</p>
+                    </div>
+                </div>
+                <div class="step fade-in delay-3">
+                    <div class="step-icon">
+                        <i class="fas fa-download"></i>
+                        <div class="step-number">4</div>
+                    </div>
+                    <div class="step-content">
+                        <h3>Generate final version</h3>
+                        <p>Press generate and our AI produces the final version, that we host for you</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CV Preview Section -->
+    <section class="cv-preview-section" id="preview">
+        <div class="container">
+            <div class="preview-container">
+                <div class="preview-content fade-in">
+                    <h2>Interactive CV Templates</h2>
+                    <p>Create a CV with dynamic animations that engage recruiters and showcase your professional story.</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span>Animated metrics that highlight achievements</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span>Interactive expandable sections, with detailed analytics</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span>Dynamic skill bars for visualization</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span>Optimized for all platforms/mobile/tablets</span>
+                        </div>
+                    </div>
+                    
+                    <a href="#upload" class="cta-button">Create Your CV Now</a>
+                </div>
+                <div class="preview-image fade-in delay-2">
+                    <!-- CV Preview Frame -->
+                    <div class="cv-preview-frame">
+                        <div class="cv-page">
+                            <!-- CV Header -->
+                            <header class="cv-header">
+                                <div class="cv-identity">
+                                    <h1 class="cv-name">Sarah Mitchell</h1>
+                                    <div class="cv-profession">Product Marketing Director</div>
+                                    <div class="cv-contact">
+                                        <div class="cv-contact-item">
+                                            <i class="fas fa-phone"></i>
+                                            <span>+45 42 891 673</span>
+                                        </div>
+                                        <div class="cv-contact-item">
+                                            <i class="fas fa-envelope"></i>
+                                            <span>sarah.mitchell@example.com</span>
+                                        </div>
+                                        <div class="cv-contact-item">
+                                            <i class="fab fa-linkedin"></i>
+                                            <span>linkedin.com/in/sarahmitchell</span>
+                                        </div>
+                                        <div class="cv-contact-item">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <span>Copenhagen, Denmark</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="cv-photo">
+                                    <div class="cv-photo-frame">
+                                        <img src="https://placehold.co/120x120/00a8e8/FFF?text=SM" alt="Profile Photo">
+                                    </div>
+                                </div>
+                            </header>
+
+                            <!-- CV Profile -->
+                            <section class="cv-profile">
+                                <h2 class="cv-section-title">Professional Profile</h2>
+                                <div class="cv-profile-content">
+                                    Innovative product marketing director with 12+ years of experience driving market positioning, go-to-market strategies, and digital transformation initiatives. Proven record of building high-performing teams and accelerating company growth through data-driven marketing campaigns and strategic partnerships that consistently exceed revenue targets.
+                                </div>
+                            </section>
+
+                            <!-- CV Metrics -->
+                            <div class="cv-metrics">
+                                <div class="cv-metric-card">
+                                    <i class="fas fa-chart-line cv-metric-icon"></i>
+                                    <div class="cv-metric-value" data-value="250" data-suffix="%">0</div>
+                                    <div class="cv-metric-label">Revenue growth over 3 years</div>
+                                </div>
+                                <div class="cv-metric-card">
+                                    <i class="fas fa-briefcase cv-metric-icon"></i>
+                                    <div class="cv-metric-value" data-value="12" data-suffix="M">0</div>
+                                    <div class="cv-metric-label">EUR marketing budget managed</div>
+                                </div>
+                                <div class="cv-metric-card">
+                                    <i class="fas fa-trophy cv-metric-icon"></i>
+                                    <div class="cv-metric-value" data-value="18" data-suffix="">0</div>
+                                    <div class="cv-metric-label">Industry awards for campaigns</div>
+                                </div>
+                                <div class="cv-metric-card">
+                                    <i class="fas fa-users cv-metric-icon"></i>
+                                    <div class="cv-metric-value" data-value="25" data-suffix="">0</div>
+                                    <div class="cv-metric-label">Team members led across departments</div>
+                                </div>
+                            </div>
+
+                            <!-- CV Main Content -->
+                            <main class="cv-experience">
+                                <h2 class="cv-section-title">Professional Experience</h2>
+
+                                <div class="cv-experience-card">
+                                    <div class="cv-job-header">
+                                        <div>
+                                            <div class="cv-job-title">Senior Director of Product Marketing</div>
+                                            <div class="cv-job-company">TechNova Solutions</div>
+                                        </div>
+                                        <div class="cv-job-date">January 2021 - Present</div>
+                                    </div>
+                                    
+                                    <ul class="cv-achievements">
+                                        <li class="cv-achievement-item">
+                                            <div class="cv-achievement-header">
+                                                <div class="cv-achievement-title">
+                                                    Led global product launch generating €8.5M in first-year revenue
+                                                </div>
+                                                <div class="cv-achievement-toggle">
+                                                    <i class="fas fa-chevron-down"></i>
+                                                </div>
+                                            </div>
+                                            <div class="cv-achievement-content">
+                                                <p>Orchestrated end-to-end launch strategy for flagship SaaS platform across 14 countries, coordinating cross-functional teams, creating comprehensive GTM plans, and developing targeted messaging that resulted in 250% of projected sales targets in first year.</p>
+                                            </div>
+                                        </li>
+                                        
+                                        <li class="cv-achievement-item">
+                                            <div class="cv-achievement-header">
+                                                <div class="cv-achievement-title">
+                                                    Restructured marketing operations, saving €1.2M annually
+                                                </div>
+                                                <div class="cv-achievement-toggle">
+                                                    <i class="fas fa-chevron-down"></i>
+                                                </div>
+                                            </div>
+                                            <div class="cv-achievement-content">
+                                                <p>Implemented agile marketing methodology and consolidated technology stack from 24 to 8 core solutions, enabling faster campaign deployment, reducing operational overhead by 35%, and improving marketing ROI by 42%.</p>
+                                            </div>
+                                        </li>
+                                        
+                                        <li class="cv-achievement-item">
+                                            <div class="cv-achievement-header">
+                                                <div class="cv-achievement-title">
+                                                    Established strategic partnerships driving 30% of new business
+                                                </div>
+                                                <div class="cv-achievement-toggle">
+                                                    <i class="fas fa-chevron-down"></i>
+                                                </div>
+                                            </div>
+                                            <div class="cv-achievement-content">
+                                                <p>Identified and secured collaborations with 5 industry-leading platforms to create integrated solutions and co-marketing opportunities, expanding market reach and contributing to 30% of all new customer acquisitions.</p>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="cv-experience-card">
+                                    <div class="cv-job-header">
+                                        <div>
+                                            <div class="cv-job-title">Head of Digital Marketing</div>
+                                            <div class="cv-job-company">Nordica Digital</div>
+                                        </div>
+                                        <div class="cv-job-date">March 2017 - December 2020</div>
+                                    </div>
+                                    
+                                    <ul class="cv-achievements">
+                                        <li class="cv-achievement-item">
+                                            <div class="cv-achievement-header">
+                                                <div class="cv-achievement-title">
+                                                    Built digital marketing team from 3 to 18 specialists
+                                                </div>
+                                                <div class="cv-achievement-toggle">
+                                                    <i class="fas fa-chevron-down"></i>
+                                                </div>
+                                            </div>
+                                            <div class="cv-achievement-content">
+                                                <p>Recruited, trained, and developed a high-performing digital marketing department across SEO, content, paid media, social, and analytics functions, establishing clear career paths and reducing turnover by 40%.</p>
+                                            </div>
+                                        </li>
+                                        
+                                        <li class="cv-achievement-item">
+                                            <div class="cv-achievement-header">
+                                                <div class="cv-achievement-title">
+                                                    Spearheaded data-driven marketing transformation
+                                                </div>
+                                                <div class="cv-achievement-toggle">
+                                                    <i class="fas fa-chevron-down"></i>
+                                                </div>
+                                            </div>
+                                            <div class="cv-achievement-content">
+                                                <p>Implemented comprehensive analytics infrastructure and attribution modeling, creating dashboards that provided actionable insights and enabling precision targeting that increased conversion rates by 85% while reducing cost per acquisition by 32%.</p>
+                                            </div>
+                                        </li>
+                                        
+                                        <li class="cv-achievement-item">
+                                            <div class="cv-achievement-header">
+                                                <div class="cv-achievement-title">
+                                                    Led award-winning campaign generating 15,000+ qualified leads
+                                                </div>
+                                                <div class="cv-achievement-toggle">
+                                                    <i class="fas fa-chevron-down"></i>
+                                                </div>
+                                            </div>
+                                            <div class="cv-achievement-content">
+                                                <p>Designed and executed integrated digital campaign that won 3 industry awards, leveraging targeted content marketing, strategic partnerships, and multichannel promotion to generate 15,000+ qualified leads at 40% below projected acquisition costs.</p>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </main>
+
+                            <!-- CV Side Column -->
+                            <aside class="cv-side-column">
+                                <div class="cv-skills">
+                                    <h2 class="cv-section-title">Key Competencies</h2>
+                                    
+                                    <div class="cv-skill-category">
+                                        <div class="cv-category-name">
+                                            <i class="fas fa-bullhorn"></i>
+                                            Marketing Leadership
+                                        </div>
+                                        
+                                        <div class="cv-skill-item">
+                                            <div class="cv-skill-info">
+                                                <span class="cv-skill-name">Go-to-Market Strategy</span>
+                                                <span class="cv-skill-level">Expert</span>
+                                            </div>
+                                            <div class="cv-progress-bar">
+                                                <div class="cv-progress-fill" data-width="95%"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="cv-skill-item">
+                                            <div class="cv-skill-info">
+                                                <span class="cv-skill-name">Brand Positioning</span>
+                                                <span class="cv-skill-level">Advanced</span>
+                                            </div>
+                                            <div class="cv-progress-bar">
+                                                <div class="cv-progress-fill" data-width="90%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="cv-skill-category">
+                                        <div class="cv-category-name">
+                                            <i class="fas fa-chart-pie"></i>
+                                            Analytics & Strategy
+                                        </div>
+                                        
+                                        <div class="cv-skill-item">
+                                            <div class="cv-skill-info">
+                                                <span class="cv-skill-name">Market Analysis</span>
+                                                <span class="cv-skill-level">Expert</span>
+                                            </div>
+                                            <div class="cv-progress-bar">
+                                                <div class="cv-progress-fill" data-width="95%"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="cv-skill-item">
+                                            <div class="cv-skill-info">
+                                                <span class="cv-skill-name">Performance Optimization</span>
+                                                <span class="cv-skill-level">Advanced</span>
+                                            </div>
+                                            <div class="cv-progress-bar">
+                                                <div class="cv-progress-fill" data-width="85%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="cv-education">
+                                    <h2 class="cv-section-title">Education</h2>
+                                    
+                                    <div class="cv-course-item">
+                                        <div class="cv-course-name">MBA, Marketing & Strategy</div>
+                                        <div class="cv-course-provider">Copenhagen Business School</div>
+                                    </div>
+                                    
+                                    <div class="cv-course-item">
+                                        <div class="cv-course-name">BA, Business Communication</div>
+                                        <div class="cv-course-provider">Aarhus University</div>
+                                    </div>
+                                    
+                                    <div class="cv-course-item">
+                                        <div class="cv-course-name">Digital Marketing Leadership</div>
+                                        <div class="cv-course-provider">Google Executive Academy</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="cv-languages">
+                                    <h2 class="cv-section-title">Languages</h2>
+                                    
+                                    <div class="cv-language-item">
+                                        <div class="cv-language-name">Danish</div>
+                                        <div class="cv-language-proficiency">Native</div>
+                                    </div>
+                                    
+                                    <div class="cv-language-item">
+                                        <div class="cv-language-name">English</div>
+                                        <div class="cv-language-proficiency">Fluent</div>
+                                    </div>
+                                    
+                                    <div class="cv-language-item">
+                                        <div class="cv-language-name">German</div>
+                                        <div class="cv-language-proficiency">Professional</div>
+                                    </div>
+                                </div>
+                            </aside>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMPLETELY REDESIGNED Upload Section -->
+    <section class="upload-section" id="upload">
+        <div class="container">
+            <div class="section-title">
+                <h2 class="fade-in">Create Your Professional CV Now</h2>
+                <p class="fade-in delay-1">Upload your existing CV or start from scratch</p>
+            </div>
+            <div class="upload-container fade-in delay-2">
+                <div id="auth-message" style="display: none; margin-bottom: 20px; padding: 15px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24;">
+                    <h4 style="margin-top: 0;"><i class="fas fa-exclamation-circle"></i> Authentication Required</h4>
+                    <p>Please <a href="/login.html" style="color: #721c24; font-weight: bold;">log in</a> or <a href="/register.html" style="color: #721c24; font-weight: bold;">create an account</a> to upload your CV.</p>
+                </div>
+                
+                <div id="quota-message" style="display: none; margin-bottom: 20px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 4px; color: #856404;">
+                    <h4 style="margin-top: 0;"><i class="fas fa-exclamation-triangle"></i> CV Limit Reached</h4>
+                    <p id="quota-text">Your subscription allows a maximum of <span id="max-cv-count">1</span> CV(s).</p>
+                    <p><a href="/pricing.html" class="cta-button" style="margin-top: 10px; font-size: 0.9rem; padding: 8px 15px;">Upgrade Your Plan</a></p>
+                </div>
+                
+                <!-- COMPLETELY REDESIGNED upload box -->
+                <div class="simple-upload-box" id="upload-ui">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Upload Your CV</h3>
+                    <p>Supported formats: PDF, DOC, DOCX</p>
+                    
+                    <!-- Simple file upload button -->
+                    <button type="button" class="file-btn" id="browse-button">
+                        <i class="fas fa-file-upload"></i> Choose File
+                    </button>
+                    
+                    <!-- Hidden file input - display:none instead of opacity:0 -->
+                    <input type="file" id="simple-file-input" name="cvFile" accept=".pdf,.doc,.docx" style="display: none;">
+                    
+                    <!-- File info display -->
+                    <div id="file-display" style="display: none; margin-top: 20px;">
+                        <p style="margin-bottom: 15px; color: #155724;">
+                            <i class="fas fa-file-alt" style="margin-right: 10px;"></i>
+                            Selected: <span id="file-name-display">No file selected</span>
+                        </p>
+                        
+                        <button type="button" class="cta-button" id="start-upload-button">
+                            <i class="fas fa-upload"></i> Upload and Process CV
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Loading spinner (same as before) -->
+                <div class="loading-container" id="loading-container">
+                    <div class="loading-spinner"></div>
+                    <p id="loading-text">Processing your CV with AI...</p>
+                    <p id="loading-subtext" style="font-size: 0.9rem; color: #6c757d; margin-top: 10px;">This may take 3-5 minutes as our AI carefully analyzes your CV.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Simplified Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-logo">
+                <i class="fas fa-file-alt"></i>
+                <span>CVgenius</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- COMPLETELY REDESIGNED JavaScript for file upload -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Keep all your existing animation code
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            const fadeObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        fadeObserver.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+            
+            fadeElements.forEach(element => {
+                fadeObserver.observe(element);
+            });
+
+            // Function to animate counting up
+            function animateValue(obj, start, end, duration, suffix = '') {
+                if (start === end) return;
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    let value = Math.floor(progress * (end - start) + start);
+                    obj.innerHTML = value + suffix;
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            }
+            
+            // Keep all your existing animation observers
+            const metricObserver = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    // Animate metric cards
+                    const metricCards = document.querySelectorAll('.cv-metric-card');
+                    metricCards.forEach((card, index) => {
+                        setTimeout(() => {
+                            card.classList.add('visible');
+                            
+                            // Animate the numbers
+                            const valueElement = card.querySelector('.cv-metric-value');
+                            if (valueElement) {
+                                const targetValue = parseInt(valueElement.dataset.value);
+                                const suffix = valueElement.dataset.suffix;
+                                animateValue(valueElement, 0, targetValue, 2000, suffix);
+                            }
+                        }, index * 200);
+                    });
+                }
+            }, { threshold: 0.4 });
+            
+            const achievementObserver = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    // Animate achievement items
+                    const achievementItems = document.querySelectorAll('.cv-achievement-item');
+                    achievementItems.forEach((item, index) => {
+                        setTimeout(() => {
+                            item.classList.add('visible');
+                        }, index * 150);
+                    });
+                }
+            }, { threshold: 0.2 });
+            
+            const skillsObserver = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    // Animate progress bars with staggered timing when skills section comes into view
+                    const progressBars = document.querySelectorAll('.cv-progress-fill');
+                    progressBars.forEach((bar, index) => {
+                        setTimeout(() => {
+                            const width = bar.dataset.width;
+                            bar.style.width = width;
+                        }, 100 + index * 300); // Staggered animation with 300ms delay between each bar
+                    });
+                }
+            }, { threshold: 0.5 });
+            
+            // Observe elements
+            const metrics = document.querySelector('.cv-metrics');
+            if (metrics) metricObserver.observe(metrics);
+            
+            const achievements = document.querySelector('.cv-achievements');
+            if (achievements) achievementObserver.observe(achievements);
+            
+            const skills = document.querySelector('.cv-skills');
+            if (skills) skillsObserver.observe(skills);
+            
+            // Handle achievement items expanding/collapsing
+            const achievementHeaders = document.querySelectorAll('.cv-achievement-header');
+            
+            achievementHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const item = this.parentElement;
+                    item.classList.toggle('active');
+                });
+            });
+            
+            // Open first achievement by default
+            const firstAchievement = document.querySelector('.cv-achievement-item');
+            if (firstAchievement) firstAchievement.classList.add('active');
+            
+            // ====================================================================
+            // COMPLETELY REDESIGNED File Upload Functionality
+            // ====================================================================
+            
+            // Get new simpler elements
+            const browseButton = document.getElementById('browse-button');
+            const simpleFileInput = document.getElementById('simple-file-input');
+            const fileDisplay = document.getElementById('file-display');
+            const fileNameDisplay = document.getElementById('file-name-display');
+            const startUploadButton = document.getElementById('start-upload-button');
+            const uploadUI = document.getElementById('upload-ui');
+            const loadingContainer = document.getElementById('loading-container');
+            const authMessage = document.getElementById('auth-message');
+            const quotaMessage = document.getElementById('quota-message');
+            const maxCvCount = document.getElementById('max-cv-count');
+            const navigation = document.getElementById('navigation');
+            
+            // Check authentication status and CV limits
+            let isAuthenticated = false;
+            let userCvCount = 0;
+            let userCvLimit = 1;
+            
+            // Function to check authentication
+            async function checkAuth() {
+                try {
+                    const response = await fetch('/api/auth/check');
+                    const data = await response.json();
+                    isAuthenticated = data.authenticated;
+                    
+                    if (isAuthenticated) {
+                        // User is authenticated, update navigation and check subscription
+                        updateNavigation(true);
+                        checkSubscription();
+                    } else {
+                        // User is not authenticated, show auth message
+                        updateNavigation(false);
+                        authMessage.style.display = 'block';
+                        uploadUI.style.opacity = '0.6';
+                        uploadUI.style.pointerEvents = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error checking authentication:', error);
+                }
+            }
+            
+            // Function to update navigation based on auth status
+            function updateNavigation(authenticated) {
+                if (authenticated) {
+                    navigation.innerHTML = `
+                        <a href="/pricing.html" class="nav-link">Pricing</a>
+                        <a href="/dashboard.html" class="nav-link">Dashboard</a>
+                        <a href="#" id="logout-btn" class="nav-button login-btn">Log Out</a>
+                    `;
+                    
+                    // Add logout functionality
+                    document.getElementById('logout-btn').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        fetch('/api/auth/logout', {
+                            method: 'POST'
+                        }).then(() => {
+                            window.location.href = '/';
+                        });
+                    });
+                }
+            }
+            
+            // Function to check subscription and CV limits
+            async function checkSubscription() {
+                try {
+                    // Get subscription status
+                    const statusResponse = await fetch('/api/payments/subscription-status');
+                    if (!statusResponse.ok) {
+                        throw new Error('Failed to fetch subscription status');
+                    }
+                    const subscription = await statusResponse.json();
+                    userCvLimit = subscription.allowedCVs || 1;
+                    
+                    // Get current CV count
+                    const countResponse = await fetch('/api/cv/user/count');
+                    if (!countResponse.ok) {
+                        throw new Error('Failed to fetch CV count');
+                    }
+                    const countData = await countResponse.json();
+                    userCvCount = countData.count || 0;
+                    
+                    console.log('User CV count:', userCvCount, 'Limit:', userCvLimit);
+                    
+                    // Update UI based on limits
+                    // Special handling for Infinity value (premium plans have unlimited CVs)
+                    if (userCvLimit === Infinity || userCvLimit === "Infinity" || userCvLimit > 1000) {
+                        // Unlimited CVs - always allow uploads
+                        quotaMessage.style.display = 'none';
+                        uploadUI.style.opacity = '1';
+                        uploadUI.style.pointerEvents = 'auto';
+                    } else if (userCvCount >= userCvLimit) {
+                        // Limited plan and limit reached
+                        quotaMessage.style.display = 'block';
+                        maxCvCount.textContent = userCvLimit;
+                        uploadUI.style.opacity = '0.6';
+                        uploadUI.style.pointerEvents = 'none';
+                    } else {
+                        // Limited plan but has available slots
+                        quotaMessage.style.display = 'none';
+                        uploadUI.style.opacity = '1';
+                        uploadUI.style.pointerEvents = 'auto';
+                    }
+                } catch (error) {
+                    console.error('Error checking CV limits:', error);
+                }
+            }
+            
+            // Call authentication check when page loads
+            checkAuth();
+            
+            // COMPLETELY REDESIGNED: Simple file input click handler
+            browseButton.addEventListener('click', function() {
+                // We just directly trigger the file input click - simplest possible approach
+                simpleFileInput.click();
+            });
+            
+            // Handle file selection
+            simpleFileInput.addEventListener('change', function() {
+                if (this.files && this.files.length > 0) {
+                    // Show file name and upload button
+                    fileNameDisplay.textContent = this.files[0].name;
+                    fileDisplay.style.display = 'block';
+                } else {
+                    // Hide file display if no file selected
+                    fileDisplay.style.display = 'none';
+                }
+            });
+            
+            // Handle upload button click
+            startUploadButton.addEventListener('click', function() {
+                if (simpleFileInput.files && simpleFileInput.files.length > 0) {
+                    uploadFile(simpleFileInput.files[0]);
+                }
+            });
+            
+            // Function to handle file upload
+            async function uploadFile(file) {
+                // Show loading spinner
+                uploadUI.style.display = 'none';
+                loadingContainer.style.display = 'flex';
+                
+                // Validate file type
+                const allowedTypes = ['.pdf', '.doc', '.docx'];
+                const fileName = file.name;
+                const fileExtension = '.' + fileName.split('.').pop().toLowerCase();
+                
+                if (!allowedTypes.includes(fileExtension)) {
+                    alert('Please upload a PDF, DOC, or DOCX file only.');
+                    uploadUI.style.display = 'block';
+                    loadingContainer.style.display = 'none';
+                    return;
+                }
+                
+                // Validate file size (10MB limit)
+                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                if (file.size > maxSize) {
+                    alert('File size exceeds the 10MB limit. Please upload a smaller file.');
+                    uploadUI.style.display = 'block';
+                    loadingContainer.style.display = 'none';
+                    return;
+                }
+                
+                // Create FormData object
+                const formData = new FormData();
+                formData.append('cvFile', file);
+                
+                try {
+                    // Send file to server
+                    const response = await fetch('/api/cv/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (!response.ok) {
+                        // Check if it's a quota exceeded error
+                        if (response.status === 403 && result.requiresUpgrade) {
+                            quotaMessage.style.display = 'block';
+                            maxCvCount.textContent = result.maxAllowed;
+                            uploadUI.style.display = 'block';
+                            loadingContainer.style.display = 'none';
+                        } else {
+                            // Other error
+                            alert('Error: ' + (result.error || 'Failed to upload CV'));
+                            uploadUI.style.display = 'block';
+                            loadingContainer.style.display = 'none';
+                        }
+                        return;
+                    }
+                    
+                    // Success! Redirect to CV editor
+                    window.location.href = result.redirectUrl || '/cv-editor.html';
+                    
+                } catch (error) {
+                    console.error('Error uploading file:', error);
+                    alert('Error uploading file. Please try again.');
+                    uploadUI.style.display = 'block';
+                    loadingContainer.style.display = 'none';
+                }
+            }
+            
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                        
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

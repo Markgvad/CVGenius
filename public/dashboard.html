@@ -1,0 +1,1899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CVgenius</title>
+    <!-- Added D3.js library for circle packing -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="modernAnalytics.css">
+    <style>
+        :root {
+            --primary: #003459;
+            --secondary: #007ea7;
+            --accent: #00a8e8;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #dee2e6;
+            --card-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.08);
+            --transition: all 0.25s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 1rem 0;
+        }
+
+        .header-container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .logo i {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--gray);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .nav-links .button {
+            background-color: var(--accent);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links .button:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        /* Main content */
+        main {
+            flex-grow: 1;
+            max-width: 1140px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .welcome-section {
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .subscription-badge {
+            display: inline-block;
+            background-color: var(--light);
+            color: var(--secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-left: 1rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title h2 {
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .card-title i {
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+
+        .cv-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .cv-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            border: 1px solid var(--border);
+        }
+
+        .cv-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.08);
+        }
+
+        .cv-card-header {
+            padding: 1rem;
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .cv-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .cv-date {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .cv-card-body {
+            padding: 1rem;
+            flex-grow: 1;
+        }
+
+        .cv-info {
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .cv-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .cv-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            text-align: center;
+            transition: var(--transition);
+            flex: 1;
+        }
+
+        .cv-btn-primary {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+        }
+
+        .cv-btn-primary:hover {
+            background-color: var(--secondary);
+        }
+
+        .cv-btn-secondary {
+            background-color: white;
+            color: var(--secondary);
+            border: 1px solid var(--secondary);
+        }
+
+        .cv-btn-secondary:hover {
+            background-color: var(--light);
+        }
+
+        .cv-btn-danger {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+        }
+
+        .cv-btn-danger:hover {
+            background-color: #bd2130;
+        }
+        
+        .cv-btn-info {
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+        }
+        
+        .cv-btn-info:hover {
+            background-color: #138496;
+        }
+
+        .create-cv {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .create-cv:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background-color: rgba(0, 168, 232, 0.05);
+        }
+
+        .create-cv i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .create-cv-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--border);
+        }
+
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        /* Analytics table styles */
+        .analytics-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .analytics-table th,
+        .analytics-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .analytics-table th {
+            background-color: var(--light);
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .analytics-table tr:hover {
+            background-color: rgba(0, 168, 232, 0.05);
+        }
+
+        .view-details {
+            padding: 0.3rem 0.6rem;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition);
+        }
+
+        .view-details:hover {
+            background-color: var(--secondary);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .close {
+            color: var(--gray);
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: var(--dark);
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-secondary {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e9ecef;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background-color: #bd2130;
+        }
+
+        /* Analytics container */
+        .analytics-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+            margin-top: 2rem;
+        }
+
+        .analytics-container h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: 0.375rem 0.75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-right: -15px;
+            margin-left: -15px;
+        }
+
+        .col-md-6 {
+            position: relative;
+            width: 100%;
+            padding-right: 15px;
+            padding-left: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .col-md-6 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+
+        .card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            word-wrap: break-word;
+            background-color: #fff;
+            background-clip: border-box;
+            border: 1px solid rgba(0,0,0,.125);
+            border-radius: 0.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-body {
+            flex: 1 1 auto;
+            min-height: 1px;
+            padding: 1.25rem;
+        }
+
+        .card-title {
+            margin-bottom: 0.75rem;
+        }
+
+        .display-4 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            line-height: 1.2;
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+
+        .mt-4 {
+            margin-top: 1.5rem;
+        }
+
+        /* Heatmap section */
+        .heatmap-section {
+            height: 50px;
+            margin: 5px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        /* Analytics upgrade section */
+        .upgrade-container {
+            background-color: #f8f9fa;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .upgrade-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+        }
+
+        .upgrade-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .upgrade-btn {
+            background-color: var(--accent);
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+            transition: var(--transition);
+        }
+
+        .upgrade-btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer {
+            background-color: white;
+            padding: 1.5rem 0;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        .footer-container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-text {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer-links a {
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="/" class="logo">
+                <i class="fas fa-file-alt"></i>
+                <span>CVgenius</span>
+            </a>
+            <div class="nav-links">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/">Home</a>
+                <button id="logoutBtn" class="button">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="welcome-section">
+            <h1>Welcome, <span id="userName">User</span><span id="subscriptionBadge" class="subscription-badge">Free Plan</span></h1>
+            <p>Manage your CVs and account settings</p>
+        </section>
+
+        <section class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-title">
+                    <h2>Your CVs</h2>
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <p id="cvCount">You have 0 CVs</p>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-title">
+                    <h2>Account</h2>
+                    <i class="fas fa-user"></i>
+                </div>
+                <p>Manage your account settings and subscription</p>
+            </div>
+        </section>
+
+        <h2>Your CVs</h2>
+
+        <div id="cvList" class="cv-grid">
+            <!-- CV cards will be loaded here -->
+            <a href="/" class="create-cv">
+                <div class="create-cv-content">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Create New CV</span>
+                </div>
+            </a>
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <i class="fas fa-file-alt"></i>
+            <h3>No CVs Yet</h3>
+            <p>Upload a CV to get started</p>
+            <a href="/" class="button" style="display: inline-block; margin-top: 1rem;">Create Your First CV</a>
+        </div>
+
+        <!-- Analytics Section - Will be shown/hidden based on subscription -->
+        <div id="analytics-section" style="display: none;">
+            <h2>CV Analytics</h2>
+            <div id="analytics-container">
+                <p>Loading analytics data...</p>
+            </div>
+            
+            <!-- Legacy Analytics Section -->
+            <div class="analytics-container" style="display: none;">
+                <h3>CV Section Interactions</h3>
+                <select id="cv-selector" class="form-control mb-3">
+                    <option value="">Select a CV to view analytics</option>
+                </select>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Views</h5>
+                                <p class="display-4" id="total-views">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Interactions</h5>
+                                <p class="display-4" id="total-interactions">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Section Popularity</h5>
+                        <canvas id="sections-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Interaction Heatmap</h5>
+                        <div id="heatmap-container" style="height: 300px; position: relative; border: 1px solid #ddd; border-radius: 5px;">
+                            <!-- CV sections will be visualized here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Added Circle Packing Visualization Card -->
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Section Popularity (Circle Packing)</h5>
+                        <p class="text-muted">Larger circles indicate more interactions. Hover for details.</p>
+                        <div id="circle-packing-container" style="height: 600px; display: flex; justify-content: center; align-items: center; margin-top: 20px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modern Analytics Section -->
+            <div class="modern-analytics-container" style="display: block;">
+                <div class="analytics-panel-header">
+                    <div class="analytics-panel-title">
+                        <i class="fas fa-chart-line"></i> CV Performance Insights
+                    </div>
+                    <select id="modern-cv-selector" class="form-control" style="width: auto; min-width: 200px;">
+                        <option value="">Select a CV to view analytics</option>
+                    </select>
+                </div>
+                
+                <div class="analytics-grid">
+                    <!-- CV Performance Summary -->
+                    <div class="analytics-grid-full">
+                        <div class="analytics-card animate-fade-in">
+                            <div class="analytics-card-header">
+                                <h3 class="analytics-card-title"><i class="fas fa-tachometer-alt"></i> Performance Overview</h3>
+                                <span id="last-updated-date" class="text-muted" style="font-size: 0.85rem;">Last updated: Today</span>
+                            </div>
+                            <div class="analytics-card-body">
+                                <div class="analytics-summary">
+                                    <div class="analytics-summary-item">
+                                        <div class="analytics-summary-value" id="modern-total-views">0</div>
+                                        <div class="analytics-summary-label">Total Views</div>
+                                    </div>
+                                    <div class="analytics-summary-item">
+                                        <div class="analytics-summary-value" id="modern-total-interactions">0</div>
+                                        <div class="analytics-summary-label">Interactions</div>
+                                    </div>
+                                    <div class="analytics-summary-item">
+                                        <div class="analytics-summary-value" id="modern-interaction-rate">0</div>
+                                        <div class="analytics-summary-label">Interactions/View</div>
+                                    </div>
+                                    <div class="analytics-summary-item">
+                                        <div class="analytics-summary-value" id="modern-unique-sections">0</div>
+                                        <div class="analytics-summary-label">Unique Sections Visited</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Engagement Score -->
+                    <div class="analytics-grid-half">
+                        <div class="analytics-card animate-slide-up" style="animation-delay: 0.1s;">
+                            <div class="analytics-card-header">
+                                <h3 class="analytics-card-title"><i class="fas fa-star"></i> Engagement Score</h3>
+                            </div>
+                            <div class="analytics-card-body">
+                                <div id="engagement-score-container">
+                                    <!-- Will be populated by createEngagementScore() -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section Interactions Radar -->
+                    <div class="analytics-grid-half">
+                        <div class="analytics-card animate-slide-up" style="animation-delay: 0.2s;">
+                            <div class="analytics-card-header">
+                                <h3 class="analytics-card-title"><i class="fas fa-bullseye"></i> Section Engagement</h3>
+                            </div>
+                            <div class="analytics-card-body">
+                                <canvas id="radar-chart" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Modern Heatmap -->
+                    <div class="analytics-grid-full">
+                        <div class="analytics-card animate-slide-up" style="animation-delay: 0.3s;">
+                            <div class="analytics-card-header">
+                                <h3 class="analytics-card-title"><i class="fas fa-fire"></i> Interaction Heatmap</h3>
+                            </div>
+                            <div class="analytics-card-body">
+                                <div id="modern-heatmap-container">
+                                    <!-- Will be populated by createModernHeatmap() -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- View Timeline -->
+                    <div class="analytics-grid-full">
+                        <div class="analytics-card animate-slide-up" style="animation-delay: 0.4s;">
+                            <div class="analytics-card-header">
+                                <h3 class="analytics-card-title"><i class="fas fa-calendar-alt"></i> View Timeline</h3>
+                            </div>
+                            <div class="analytics-card-body">
+                                <div id="view-timeline-container">
+                                    <!-- Will be populated by createViewTimeline() -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Circle Packing (optional for advanced users) -->
+                    <div class="analytics-grid-full">
+                        <div class="analytics-panel expanded animate-slide-up" style="animation-delay: 0.5s;">
+                            <div class="analytics-panel-header">
+                                <div class="analytics-panel-title">
+                                    <i class="fas fa-project-diagram"></i> Advanced Visualization
+                                </div>
+                                <div class="analytics-panel-toggle">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                            <div class="analytics-panel-body">
+                                <div class="analytics-card" style="margin-top: 1rem;">
+                                    <div class="analytics-card-body">
+                                        <p class="text-muted mb-4">This visualization uses a hierarchical circle packing algorithm to group interactions by section type. Larger circles represent more interactions. Hover over circles for details.</p>
+                                        <div id="modern-circle-packing" style="height: 600px; display: flex; justify-content: center; align-items: center;">
+                                            <!-- Will be populated by createCirclePacking() -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Upgrade CTA - Will be shown when user doesn't have analytics -->
+        <div id="analytics-upgrade-cta" class="upgrade-container" style="display: none;">
+            <div class="upgrade-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3 class="upgrade-title">Unlock Advanced Analytics</h3>
+            <p>Upgrade to our Premium plan to access detailed CV analytics, including view tracking, section interactions, and performance metrics.</p>
+            <p>See how visitors engage with your CV and optimize your resume for better results.</p>
+            <a href="/pricing.html" class="upgrade-btn">Upgrade to Premium</a>
+        </div>
+
+        <!-- Subscription Status Card -->
+        <div id="subscription-status" class="dashboard-card" style="margin-top: 2rem;">
+            <div class="card-title">
+                <h2>Subscription</h2>
+                <i class="fas fa-star"></i>
+            </div>
+            <p>Loading subscription details...</p>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <div id="detailed-analytics" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Detailed CV Analytics</h2>
+            <div id="detailed-analytics-content"></div>
+        </div>
+    </div>
+
+    <!-- Delete confirmation modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirm Deletion</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this CV? This action cannot be undone.</p>
+                <p><strong>CV Name: </strong><span id="deleteModalCvName"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelDeleteBtn" class="btn btn-secondary">Cancel</button>
+                <button id="confirmDeleteBtn" class="btn btn-danger">Delete CV</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-text">
+                &copy; 2025 CVgenius. All rights reserved.
+            </div>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Add Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/circlePacking.js"></script>
+    <script src="js/modernAnalytics.js"></script>
+    <script src="dashboard.js"></script>
+    
+    <script>
+        // Main dashboard functionality
+        let sectionsChart = null;
+        let hasAnalyticsAccess = false;
+        
+        // Check if user has analytics access
+        async function checkAnalyticsAccess() {
+            try {
+                const response = await fetch('/api/payments/subscription-status', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch subscription status');
+                }
+                
+                const data = await response.json();
+                console.log('Subscription status:', data);
+                
+                // Update UI based on subscription status
+                updateSubscriptionUI(data);
+                
+                return data.hasAnalytics === true;
+            } catch (error) {
+                console.error('Error checking analytics access:', error);
+                return false;
+            }
+        }
+        
+        // Update subscription UI
+        function updateSubscriptionUI(subscriptionData) {
+            const statusElement = document.getElementById('subscription-status');
+            if (statusElement) {
+                let tierName = subscriptionData.tier.charAt(0).toUpperCase() + subscriptionData.tier.slice(1);
+                let expiry = new Date(subscriptionData.expiresAt).toLocaleDateString();
+                
+                statusElement.innerHTML = `
+                    <div class="card-title">
+                        <h2>Subscription</h2>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p><strong>Plan:</strong> ${tierName}</p>
+                    <p><strong>Expires:</strong> ${expiry}</p>
+                    <p><strong>CVs Allowed:</strong> ${subscriptionData.allowedCVs}</p>
+                    <p><strong>Analytics:</strong> ${subscriptionData.hasAnalytics ? 'Yes' : 'No'}</p>
+                    ${subscriptionData.tier !== 'premium' ? 
+                        '<a href="/pricing.html" class="cv-btn cv-btn-primary" style="display: inline-block; margin-top: 1rem;">Upgrade Plan</a>' : 
+                        ''}
+                `;
+                
+                // Also update the subscription badge
+                const badgeElement = document.getElementById('subscriptionBadge');
+                if (badgeElement) {
+                    badgeElement.textContent = tierName + ' Plan';
+                }
+            }
+        }
+        
+        // Delete CV functionality
+        function setupDeleteButtons() {
+            const deleteButtons = document.querySelectorAll('.delete-cv-btn');
+            const deleteModal = document.getElementById('deleteModal');
+            const closeModalBtn = deleteModal.querySelector('.close');
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const deleteModalCvName = document.getElementById('deleteModalCvName');
+
+            let currentCvToDelete = null;
+
+            // Open modal when delete button is clicked
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentCvToDelete = button.getAttribute('data-cv-id');
+                    deleteModalCvName.textContent = button.getAttribute('data-cv-name');
+                    deleteModal.style.display = 'block';
+                });
+            });
+
+            // Close modal when X is clicked
+            closeModalBtn.addEventListener('click', () => {
+                deleteModal.style.display = 'none';
+            });
+
+            // Close modal when Cancel is clicked
+            cancelDeleteBtn.addEventListener('click', () => {
+                deleteModal.style.display = 'none';
+            });
+
+            // Close modal when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === deleteModal) {
+                    deleteModal.style.display = 'none';
+                }
+            });
+
+            // Handle delete confirmation
+            confirmDeleteBtn.addEventListener('click', async () => {
+                if (!currentCvToDelete) return;
+
+                try {
+                    const response = await fetch(`/api/cv/${currentCvToDelete}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include' // Make sure cookies are sent with the request
+                    });
+
+                    if (response.ok) {
+                        // Remove the CV card from the UI
+                        const cvCard = document.querySelector(`.cv-card[data-cv-id="${currentCvToDelete}"]`);
+                        if (cvCard) {
+                            cvCard.remove();
+
+                            // Update the CV count
+                            const remainingCVs = document.querySelectorAll('.cv-card').length;
+                            document.getElementById('cvCount').textContent =
+                                `You have ${remainingCVs} CV${remainingCVs !== 1 ? 's' : ''}`;
+
+                            // Show empty state if no CVs left
+                            if (remainingCVs === 0) {
+                                document.getElementById('emptyState').style.display = 'block';
+                            }
+
+                            // Refresh analytics if they're being displayed and user has access
+                            if (hasAnalyticsAccess) {
+                                loadAnalytics();
+                            }
+                        }
+
+                        // Show a success message
+                        alert('CV deleted successfully');
+                    } else {
+                        try {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || 'Failed to delete CV');
+                        } catch (jsonError) {
+                            // If response is not JSON (like HTML), provide a more generic error
+                            throw new Error('Failed to delete CV. You may need to log in again.');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error deleting CV:', error);
+                    alert(`Error deleting CV: ${error.message}`);
+                } finally {
+                    deleteModal.style.display = 'none';
+                    currentCvToDelete = null;
+                }
+            });
+        }
+
+        // Analytics functionality
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('/api/analytics/user');
+                
+                // Check if response indicates subscription requirement
+                if (response.status === 403) {
+                    const data = await response.json();
+                    if (data.requiresUpgrade) {
+                        document.getElementById('analytics-section').style.display = 'none';
+                        document.getElementById('analytics-upgrade-cta').style.display = 'block';
+                        return;
+                    }
+                }
+                
+                // If not 403, process analytics data
+                if (!response.ok) {
+                    throw new Error('Failed to load analytics data');
+                }
+                
+                const data = await response.json();
+                const container = document.getElementById('analytics-container');
+
+                if (data.length === 0) {
+                    container.innerHTML = '<p>No CVs found. Create your first CV to see analytics.</p>';
+                    return;
+                }
+
+                let html = '<table class="analytics-table">';
+                html += '<tr><th>CV Title</th><th>Views</th><th>Section Interactions</th><th>Last Viewed</th><th>Actions</th></tr>';
+
+                data.forEach(cv => {
+                    const lastViewed = cv.lastViewed
+                        ? new Date(cv.lastViewed).toLocaleDateString()
+                        : 'Never';
+
+                    html += `<tr>
+                        <td>${cv.title}</td>
+                        <td>${cv.views}</td>
+                        <td>${cv.interactionCount || 0}</td>
+                        <td>${lastViewed}</td>
+                        <td><button class="view-details" data-cv-id="${cv.id}"><i class="fas fa-chevron-down"></i></button></td>
+                    </tr>`;
+                });
+
+                html += '</table>';
+                container.innerHTML = html;
+
+                // Add event listeners for rows and detail buttons
+                const analyticsRows = document.querySelectorAll('.analytics-table tr:not(:first-child)');
+                analyticsRows.forEach(row => {
+                    row.addEventListener('click', (e) => {
+                        // Don't process if clicking directly on the button
+                        if (!e.target.closest('.view-details')) {
+                            const button = row.querySelector('.view-details');
+                            const cvId = button.getAttribute('data-cv-id');
+                            
+                            button.classList.toggle('expanded');
+                            loadDetailedAnalytics(cvId, row);
+                        }
+                    });
+                });
+                
+                // Also keep button click functionality
+                document.querySelectorAll('.view-details').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent row click handler
+                        const cvId = button.getAttribute('data-cv-id');
+                        button.classList.toggle('expanded');
+                        
+                        // Get parent row
+                        const row = button.closest('tr');
+                        loadDetailedAnalytics(cvId, row);
+                    });
+                });
+                
+                // Show the analytics section
+                document.getElementById('analytics-section').style.display = 'block';
+                // Hide the legacy analytics container, show the modern one
+                document.querySelector('.analytics-container').style.display = 'none';
+                document.querySelector('.modern-analytics-container').style.display = 'block';
+                document.getElementById('analytics-upgrade-cta').style.display = 'none';
+                
+                // Load CVs for the selectors
+                loadUserCVs();
+                
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                document.getElementById('analytics-container').innerHTML =
+                    '<p>Error loading analytics. Please try again later.</p>';
+            }
+        }
+
+        // Load detailed analytics for a specific CV
+        async function loadDetailedAnalytics(cvId, row) {
+            try {
+                // Check if we're toggling an existing details row
+                const nextRow = row.nextElementSibling;
+                if (nextRow && nextRow.classList.contains('details-row')) {
+                    // Toggle visibility of existing details
+                    nextRow.classList.toggle('hidden');
+                    if (nextRow.classList.contains('hidden')) {
+                        nextRow.style.display = 'none';
+                    } else {
+                        nextRow.style.display = 'table-row';
+                    }
+                    return;
+                }
+                
+                const response = await fetch(`/api/analytics/cv/${cvId}`);
+                
+                // Check if response indicates subscription requirement
+                if (response.status === 403) {
+                    const data = await response.json();
+                    if (data.requiresUpgrade) {
+                        alert('Analytics access requires premium subscription. Please upgrade your plan.');
+                        return;
+                    }
+                }
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load detailed analytics');
+                }
+                
+                const cv = await response.json();
+                
+                // Create a new row for details
+                const detailsRow = document.createElement('tr');
+                detailsRow.className = 'details-row';
+                detailsRow.style.backgroundColor = '#f9f9f9';
+                
+                // Create a cell that spans all columns
+                const detailsCell = document.createElement('td');
+                detailsCell.colSpan = 5; // Match the number of columns in the table
+                detailsCell.style.padding = '15px';
+                
+                let detailsHTML = `<h4>${cv.title} Analytics</h4>`;
+                detailsHTML += `<p><strong>Total Views:</strong> ${cv.views}</p>`;
+
+                if (cv.sectionInteractions && cv.sectionInteractions.length > 0) {
+                    detailsHTML += '<h5>Section Interactions</h5>';
+                    detailsHTML += '<table class="analytics-details-table" style="width:100%; border-collapse:collapse; margin-top:10px;">';
+                    detailsHTML += '<tr><th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Section</th><th style="text-align:center; padding:8px; border-bottom:1px solid #ddd;">Clicks</th><th style="text-align:right; padding:8px; border-bottom:1px solid #ddd;">Last Clicked</th></tr>';
+
+                    // Sort by most clicked
+                    const sortedInteractions = [...cv.sectionInteractions].sort((a, b) => b.clicks - a.clicks);
+
+                    sortedInteractions.forEach(section => {
+                        const lastClicked = new Date(section.lastClicked).toLocaleDateString();
+
+                        detailsHTML += `<tr>
+                            <td style="padding:8px; border-bottom:1px solid #eee;">${section.sectionTitle}</td>
+                            <td style="text-align:center; padding:8px; border-bottom:1px solid #eee;">${section.clicks}</td>
+                            <td style="text-align:right; padding:8px; border-bottom:1px solid #eee;">${lastClicked}</td>
+                        </tr>`;
+                    });
+
+                    detailsHTML += '</table>';
+                } else {
+                    detailsHTML += '<p>No section interactions recorded yet.</p>';
+                }
+                
+                detailsCell.innerHTML = detailsHTML;
+                detailsRow.appendChild(detailsCell);
+                
+                // Insert the details row after the clicked row
+                row.parentNode.insertBefore(detailsRow, row.nextSibling);
+                
+                // Add styling to details row
+                detailsRow.style.display = 'table-row';
+                detailsRow.style.transition = 'all 0.3s ease';
+                
+            } catch (error) {
+                console.error('Error loading detailed analytics:', error);
+                alert('Error loading detailed analytics. Please try again later.');
+            }
+        }
+
+        // Load user's CVs for the dropdown
+        async function loadUserCVs() {
+            try {
+                const response = await fetch('/api/cv/user/cvs');
+                const cvs = await response.json();
+                
+                // Update legacy selector
+                const legacySelector = document.getElementById('cv-selector');
+                legacySelector.innerHTML = '<option value="">Select a CV to view analytics</option>';
+                
+                // Update modern selector
+                const modernSelector = document.getElementById('modern-cv-selector');
+                modernSelector.innerHTML = '<option value="">Select a CV to view analytics</option>';
+                
+                cvs.forEach(cv => {
+                    // Add to legacy selector
+                    const legacyOption = document.createElement('option');
+                    legacyOption.value = cv.urlId;
+                    legacyOption.textContent = cv.fileName || `CV ${cv.urlId}`;
+                    legacySelector.appendChild(legacyOption);
+                    
+                    // Add to modern selector
+                    const modernOption = document.createElement('option');
+                    modernOption.value = cv.urlId;
+                    modernOption.textContent = cv.fileName || `CV ${cv.urlId}`;
+                    modernSelector.appendChild(modernOption);
+                });
+                
+                // Add change listener to legacy selector
+                legacySelector.addEventListener('change', function() {
+                    if (this.value) {
+                        loadCVAnalytics(this.value);
+                    }
+                });
+                
+                // Add change listener to modern selector
+                modernSelector.addEventListener('change', function() {
+                    if (this.value) {
+                        loadCVAnalytics(this.value);
+                        
+                        // Also update legacy selector for consistency
+                        legacySelector.value = this.value;
+                    }
+                });
+                
+                // If there's at least one CV, auto-select the first one
+                if (cvs.length > 0) {
+                    modernSelector.value = cvs[0].urlId;
+                    // Trigger the change event
+                    const event = new Event('change');
+                    modernSelector.dispatchEvent(event);
+                }
+            } catch (error) {
+                console.error('Error loading CVs:', error);
+            }
+        }
+
+        // Load analytics for a specific CV
+        async function loadCVAnalytics(cvId) {
+            try {
+                // Clear existing data first to prevent showing stale data
+                document.getElementById('total-views').textContent = '0';
+                document.getElementById('total-interactions').textContent = '0';
+                document.getElementById('modern-total-views').textContent = '0';
+                document.getElementById('modern-total-interactions').textContent = '0';
+                document.getElementById('modern-interaction-rate').textContent = '0';
+                document.getElementById('modern-unique-sections').textContent = '0';
+                
+                // Show loading indicator
+                document.getElementById('modern-heatmap-container').innerHTML = 
+                    '<div class="loading-container"><div class="loading-spinner"></div><p>Loading analytics data...</p></div>';
+                
+                // Fetch fresh analytics data
+                const response = await fetch(`/api/analytics/cv/${cvId}`, {
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    }
+                });
+                
+                // Check if response indicates subscription requirement
+                if (response.status === 403) {
+                    const data = await response.json();
+                    if (data.requiresUpgrade) {
+                        alert('Analytics access requires premium subscription. Please upgrade your plan.');
+                        return;
+                    }
+                }
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load CV analytics');
+                }
+                
+                const data = await response.json();
+                
+                // Debug log the data structure
+                console.log('CV Analytics Data:', data);
+                console.log('Section interactions:', data.sectionInteractions);
+                
+                // Update legacy UI
+                document.getElementById('total-views').textContent = data.views || 0;
+                document.getElementById('total-interactions').textContent = 
+                    data.sectionInteractions.reduce((sum, section) => sum + section.clicks, 0);
+                
+                // Create/update legacy chart
+                createSectionChart(data.sectionInteractions);
+                createHeatmap(data.sectionInteractions);
+                
+                // Create legacy circle packing visualization
+                if (data.sectionInteractions && data.sectionInteractions.length > 0) {
+                    const circlePackData = prepareCirclePackingData(data);
+                    createCirclePacking(circlePackData, 'circle-packing-container');
+                } else {
+                    document.getElementById('circle-packing-container').innerHTML = 
+                        '<div style="text-align:center; padding:20px; color:#666;">No interaction data available yet</div>';
+                }
+                
+                // Update modern UI
+                updateModernAnalytics(data);
+            } catch (error) {
+                console.error('Error loading CV analytics:', error);
+                const errorMessage = error.toString();
+                // Display more detailed error message
+                const errorHtml = `
+                    <div style="text-align:center; padding:20px; color:#d9534f;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 10px;"></i>
+                        <p>Error loading analytics data</p>
+                        <small style="display: block; margin-top: 10px; font-family: monospace; max-width: 100%; overflow: auto; word-break: break-word;">
+                            ${errorMessage}
+                        </small>
+                    </div>`;
+                document.getElementById('circle-packing-container').innerHTML = errorHtml;
+                document.getElementById('modern-heatmap-container').innerHTML = errorHtml;
+                
+                // Additional debugging - log full error details
+                console.log('Full error details:', {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name
+                });
+            }
+        }
+        
+        // Update modern analytics visualizations
+        function updateModernAnalytics(data) {
+            try {
+                console.log('Starting updateModernAnalytics with data:', data);
+                
+                if (!data) {
+                    console.error('No data provided to updateModernAnalytics');
+                    throw new Error('Analytics data is missing or empty');
+                }
+                
+                // Update summary stats
+            const totalViews = data.views || 0;
+            
+            // Validate section interactions array
+            if (!data.sectionInteractions) {
+                console.error('sectionInteractions is missing from data');
+                data.sectionInteractions = [];
+            }
+            
+            // Check if each section has the expected properties
+            const validSections = data.sectionInteractions.filter(section => {
+                if (!section) {
+                    console.error('Found null or undefined section in sectionInteractions');
+                    return false;
+                }
+                
+                if (typeof section.clicks !== 'number') {
+                    console.error('Section missing clicks property:', section);
+                    section.clicks = 0; // Add default value
+                }
+                
+                if (!section.sectionId) {
+                    console.error('Section missing sectionId:', section);
+                    section.sectionId = 'unknown-' + Math.random().toString(36).substring(2, 8);
+                }
+                
+                return true;
+            });
+            
+            // Replace with cleaned data
+            data.sectionInteractions = validSections;
+            
+            const totalInteractions = data.sectionInteractions.reduce((sum, section) => sum + (section.clicks || 0), 0);
+            const interactionRate = totalViews > 0 ? (totalInteractions / totalViews).toFixed(1) : '0';
+            const uniqueSections = new Set(data.sectionInteractions.map(s => s.sectionId)).size;
+            
+            document.getElementById('modern-total-views').textContent = totalViews;
+            document.getElementById('modern-total-interactions').textContent = totalInteractions;
+            document.getElementById('modern-interaction-rate').textContent = interactionRate;
+            document.getElementById('modern-unique-sections').textContent = uniqueSections;
+            
+            // Update last viewed date if available
+            if (data.lastViewed) {
+                const lastViewedDate = new Date(data.lastViewed);
+                document.getElementById('last-updated-date').textContent = 
+                    `Last updated: ${lastViewedDate.toLocaleDateString()}`;
+            }
+            
+            // Create radar chart
+            createRadarChart('radar-chart', data.sectionInteractions);
+            
+            // Create modern heatmap
+            console.log('Creating heatmap with section interactions:', data.sectionInteractions);
+            
+            // Verify that the container exists
+            const heatmapContainer = document.getElementById('modern-heatmap-container');
+            if (!heatmapContainer) {
+                console.error('Heatmap container not found!');
+            } else {
+                console.log('Found heatmap container:', heatmapContainer);
+                // Check the CSS visibility
+                const style = window.getComputedStyle(heatmapContainer);
+                console.log('Heatmap container style - display:', style.display, 'visibility:', style.visibility);
+            }
+            
+            createModernHeatmap('modern-heatmap-container', data.sectionInteractions);
+            
+            // Check if the heatmap was rendered properly
+            setTimeout(() => {
+                const heatmapContent = document.getElementById('modern-heatmap-container').innerHTML;
+                console.log('Heatmap container content after rendering:', 
+                    heatmapContent.length > 100 ? heatmapContent.substring(0, 100) + '...' : heatmapContent);
+            }, 500);
+            
+            // Create view timeline using the viewHistory data if available
+            const viewsData = data.viewHistory || 
+                // Fallback with distributed dates if viewHistory is not available
+                Array(totalViews).fill().map((_, index) => {
+                    // Create dates distributed over the past 30 days
+                    const date = new Date();
+                    date.setDate(date.getDate() - Math.floor(Math.random() * 30));
+                    return { date: date };
+                });
+            createViewTimeline('view-timeline-container', viewsData);
+            
+            // Create engagement score
+            createEngagementScore('engagement-score-container', data);
+            
+            // Create circle packing visualization
+            if (data.sectionInteractions && data.sectionInteractions.length > 0) {
+                const circlePackData = prepareCirclePackingData(data);
+                createCirclePacking(circlePackData, 'modern-circle-packing');
+            } else {
+                document.getElementById('modern-circle-packing').innerHTML = 
+                    '<div class="empty-state-chart"><i class="fas fa-project-diagram"></i><p>No interaction data available yet</p></div>';
+            }
+            
+            // Initialize expandable panels
+            initExpandablePanels();
+            
+            } catch (error) {
+                console.error('Error in updateModernAnalytics:', error);
+                // Display error in all visualization containers
+                const errorHtml = `
+                    <div class="empty-state-chart">
+                        <i class="fas fa-exclamation-triangle" style="color: #e74c3c;"></i>
+                        <p>Error updating analytics</p>
+                        <small style="display: block; margin-top: 10px; color: #e74c3c;">${error.message}</small>
+                    </div>`;
+                
+                // Update all containers with error message
+                document.getElementById('radar-chart').closest('.analytics-card-body').innerHTML = errorHtml;
+                document.getElementById('modern-heatmap-container').innerHTML = errorHtml;
+                document.getElementById('view-timeline-container').innerHTML = errorHtml;
+                document.getElementById('engagement-score-container').innerHTML = errorHtml;
+                document.getElementById('modern-circle-packing').innerHTML = errorHtml;
+            }
+        }
+        
+        // Initialize expandable panels
+        function initExpandablePanels() {
+            document.querySelectorAll('.analytics-panel-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const panel = header.closest('.analytics-panel');
+                    panel.classList.toggle('expanded');
+                    
+                    // Update panel body max-height when toggling
+                    const body = panel.querySelector('.analytics-panel-body');
+                    if (body) {
+                        if (panel.classList.contains('expanded')) {
+                            body.style.maxHeight = '2000px';
+                        } else {
+                            body.style.maxHeight = '0';
+                        }
+                    }
+                });
+            });
+            
+            // Make sure expanded panels have proper max-height on initialization
+            document.querySelectorAll('.analytics-panel.expanded').forEach(panel => {
+                const body = panel.querySelector('.analytics-panel-body');
+                if (body) {
+                    body.style.maxHeight = '2000px';
+                }
+            });
+        }
+
+        // Create/update the sections chart
+        function createSectionChart(sectionData) {
+            const ctx = document.getElementById('sections-chart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (sectionsChart) {
+                sectionsChart.destroy();
+            }
+            
+            // If no data, show empty chart
+            if (!sectionData || sectionData.length === 0) {
+                sectionsChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['No data available'],
+                        datasets: [{
+                            label: 'Interactions',
+                            data: [0],
+                            backgroundColor: 'rgba(201, 203, 207, 0.7)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'No Section Interactions Yet'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                return;
+            }
+            
+            // Extract data for chart
+            const labels = sectionData.map(section => section.sectionTitle || 'Unnamed Section');
+            
+            // Group by section type if available
+            const sectionTypes = [...new Set(sectionData.map(section => section.sectionType || 'other'))];
+            const datasets = sectionTypes.map(type => {
+                const typeData = sectionData.filter(s => (s.sectionType || 'other') === type);
+                
+                const colors = {
+                    'achievement': 'rgba(75, 192, 192, 0.7)',
+                    'skill': 'rgba(54, 162, 235, 0.7)',
+                    'education': 'rgba(255, 159, 64, 0.7)',
+                    'language': 'rgba(153, 102, 255, 0.7)',
+                    'other': 'rgba(201, 203, 207, 0.7)'
+                };
+                
+                return {
+                    label: type.charAt(0).toUpperCase() + type.slice(1),
+                    data: typeData.map(s => s.clicks),
+                    backgroundColor: colors[type],
+                    borderColor: colors[type].replace('0.7', '1'),
+                    borderWidth: 1
+                };
+            });
+            
+            // Create the chart
+            sectionsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Section Interaction Breakdown'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create heatmap visualization
+        function createHeatmap(sectionData) {
+            const container = document.getElementById('heatmap-container');
+            container.innerHTML = '';
+            
+            if (!sectionData || sectionData.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px;">No interaction data available</div>';
+                return;
+            }
+            
+            // Create a simple representation of CV sections
+            const sectionTypes = [
+                { type: 'header', name: 'Profile Header' },
+                { type: 'achievement', name: 'Work Experience' },
+                { type: 'skill', name: 'Skills' },
+                { type: 'education', name: 'Education' },
+                { type: 'language', name: 'Languages' }
+            ];
+            
+            // Create section blocks
+            sectionTypes.forEach(section => {
+                const sectionEl = document.createElement('div');
+                sectionEl.className = 'heatmap-section';
+                sectionEl.setAttribute('data-type', section.type);
+                sectionEl.style.height = '50px';
+                sectionEl.style.margin = '5px';
+                sectionEl.style.padding = '10px';
+                sectionEl.style.backgroundColor = '#f8f9fa';
+                sectionEl.style.borderRadius = '4px';
+                sectionEl.style.position = 'relative';
+                sectionEl.textContent = section.name;
+                
+                // Calculate heat based on clicks in this section type
+                const sectionClicks = sectionData
+                    .filter(s => (s.sectionType || 'other') === section.type)
+                    .reduce((sum, s) => sum + s.clicks, 0);
+                
+                // Max intensity at 20 clicks (adjust as needed)
+                const intensity = Math.min(sectionClicks / 20, 1);
+                const hue = 120 - (intensity * 120); // 120 (green) to 0 (red)
+                
+                sectionEl.style.backgroundColor = `hsla(${hue}, 80%, 60%, ${intensity * 0.7})`;
+                
+                // Show click count
+                const countBadge = document.createElement('span');
+                countBadge.textContent = sectionClicks;
+                countBadge.style.position = 'absolute';
+                countBadge.style.right = '10px';
+                countBadge.style.top = '50%';
+                countBadge.style.transform = 'translateY(-50%)';
+                countBadge.style.backgroundColor = '#fff';
+                countBadge.style.padding = '2px 6px';
+                countBadge.style.borderRadius = '10px';
+                countBadge.style.fontSize = '12px';
+                countBadge.style.fontWeight = 'bold';
+                
+                sectionEl.appendChild(countBadge);
+                container.appendChild(sectionEl);
+            });
+        }
+
+        // Prepares CV analytics data for circle packing visualization
+        function prepareCirclePackingData(analyticsData) {
+            // Define section types and their labels
+            const sectionTypes = {
+                'achievement': 'Work Experience',
+                'skill': 'Skills',
+                'education': 'Education',
+                'language': 'Languages',
+                'header': 'Profile Header',
+                'other': 'Other Sections'
+            };
+            
+            // Prepare children array
+            const children = [];
+            
+            // Create section groups
+            Object.entries(sectionTypes).forEach(([type, label]) => {
+                // Filter interactions for this section type
+                const sections = analyticsData.sectionInteractions
+                .filter(section => (section.sectionType || 'other') === type);
+                
+                if (sections.length > 0) {
+                    // Create children for this section type
+                    const sectionChildren = sections.map(section => ({
+                        name: section.sectionTitle || 'Unnamed Section',
+                        value: section.clicks || 0,
+                        type: type
+                    }));
+                    
+                    // Add to children array
+                    children.push({
+                        name: label,
+                        children: sectionChildren
+                    });
+                }
+            });
+            
+            // Return the hierarchical structure
+            return {
+                name: "CV Interactions",
+                children: children
+            };
+        }
+
+        // Creates a circle packing visualization for CV analytics data
+        function createCirclePacking(data, containerId) {
+            // Set dimensions
+            const width = 800;
+            const height = 800;
+            
+            // Clear any existing visualization
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            // Create color scale based on section types
+            const colorMap = {
+                'achievement': '#4BBFC9',  // Work Experience
+                'skill': '#4B9ECF',        // Skills
+                'education': '#F9A03F',    // Education
+                'language': '#9966FF',     // Languages
+                'header': '#6EAF46',       // Profile Header
+                'other': '#CCC'            // Other sections
+            };
+            
+            // Create the pack layout
+            const pack = d3.pack()
+                .size([width, height])
+                .padding(3);
+            
+            // Prepare hierarchical data
+            const root = d3.hierarchy(data)
+                .sum(d => d.value)
+                .sort((a, b) => b.value - a.value);
+            
+            // Generate the pack layout
+            pack(root);
+            
+            // Create SVG
+            const svg = d3.select("#" + containerId).append("svg")
+                .attr("viewBox", `0 0 ${width} ${height}`)
+                .attr("width", "100%")
+                .attr("height", "100%")
+                .style("font-family", "sans-serif")
+                .style("font-size", "10px");
+            
+            // Add circles with labels
+            const node = svg.selectAll("g")
+                .data(root.descendants())
+                .join("g")
+                .attr("transform", d => `translate(${d.x},${d.y})`);
+            
+            // Add circles
+            node.append("circle")
+                .attr("fill", d => {
+                    if (!d.children) {
+                        // Leaf node - use section type color
+                        return colorMap[d.data.type] || colorMap.other;
+                    } else {
+                        // Parent node - white with border
+                        return "#fff";
+                    }
+                })
+                .attr("stroke", d => d.children ? "#bbb" : null)
+                .attr("r", d => d.r)
+                .on("mouseover", function() { 
+                    d3.select(this).attr("stroke", "#000").attr("stroke-width", 2); 
+                })
+                .on("mouseout", function() { 
+                    d3.select(this).attr("stroke", d => d.data.children ? "#bbb" : null).attr("stroke-width", 1); 
+                });
+            
+            // Add labels to leaf nodes with enough space
+            const leafText = node
+                .filter(d => !d.children && d.r > 10)
+                .append("text")
+                .attr("clip-path", d => `circle(${d.r}px)`);
+            
+            // Add a tspan for each word
+            leafText.selectAll("tspan")
+                .data(d => d.data.name.split(/(?=[A-Z][a-z])|\s+/g))
+                .join("tspan")
+                .attr("x", 0)
+                .attr("y", (d, i, nodes) => `${i - nodes.length / 2 + 0.35}em`)
+                .text(d => d);
+            
+            // Add the interaction count
+            leafText.append("tspan")
+                .attr("x", 0)
+                .attr("y", d => `${d.data.name.split(/(?=[A-Z][a-z])|\s+/g).length / 2 + 0.35}em`)
+                .attr("fill-opacity", 0.7)
+                .text(d => d.value);
+            
+            // Add tooltips
+            node.append("title")
+                .text(d => {
+                    const path = d.ancestors()
+                        .map(d => d.data.name)
+                        .reverse()
+                        .join(" / ");
+                    return `${path}\n${d.value} interactions`;
+                });
+        }
+
+        // Close detailed analytics modal
+        document.querySelector('#detailed-analytics .close').addEventListener('click', function() {
+            document.getElementById('detailed-analytics').style.display = 'none';
+        });
+
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('detailed-analytics');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Make sure the expandable panel body is properly initialized
+function ensureExpandablePanels() {
+    // Find all expanded panels
+    document.querySelectorAll('.analytics-panel.expanded').forEach(panel => {
+        // Make sure the body has a high max-height
+        const body = panel.querySelector('.analytics-panel-body');
+        if (body) {
+            body.style.maxHeight = '2000px';
+        }
+    });
+}
+
+// This is now being handled by dashboard.js
+// All initialization will be done through the external script
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.href = '/login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

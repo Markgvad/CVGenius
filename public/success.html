@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Successful - CV Genius</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .success-container {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .success-icon {
+      font-size: 5rem;
+      color: #28a745;
+      margin-bottom: 1rem;
+    }
+    
+    .success-title {
+      color: #28a745;
+      margin-bottom: 1rem;
+    }
+    
+    .success-message {
+      margin-bottom: 2rem;
+    }
+    
+    .btn-dashboard {
+      background-color: #4c7bf3;
+      color: white;
+      padding: 0.75rem 2rem;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      text-decoration: none;
+      display: inline-block;
+      transition: background-color 0.3s;
+    }
+    
+    .btn-dashboard:hover {
+      background-color: #3a67d4;
+    }
+    
+    .processing {
+      margin-top: 1rem;
+      font-style: italic;
+      color: #666;
+    }
+
+    .error-message {
+      color: #dc3545;
+      padding: 1rem;
+      margin: 1rem 0;
+      border: 1px solid #dc3545;
+      border-radius: 5px;
+      background-color: #f8d7da;
+    }
+
+    .debug-info {
+      text-align: left;
+      margin-top: 2rem;
+      padding: 1rem;
+      background-color: #f8f9fa;
+      border-radius: 5px;
+      display: none;
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="logo">CV Genius</div>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+      </ul>
+    </nav>
+  </header>
+  
+  <main>
+    <div class="success-container">
+      <div class="success-icon">✓</div>
+      <h1 class="success-title">Payment Successful!</h1>
+      <p class="success-message">Thank you for upgrading your CV Genius subscription. Your account has been updated with your new subscription benefits.</p>
+      
+      <div id="subscription-details">
+        <!-- Will be filled by JavaScript -->
+      </div>
+      
+      <a href="dashboard.html" class="btn-dashboard">Go to Dashboard</a>
+      
+      <p class="processing" id="processing-message">Verifying payment details...</p>
+      <div id="error-container" style="display: none;"></div>
+      <div id="debug-info" class="debug-info"></div>
+    </div>
+  </main>
+  
+  <footer>
+    <p>&copy; 2025 CV Genius. All rights reserved.</p>
+  </footer>
+  
+  <script>
+    // Show debug info panel in development
+    const debug = sessionStorage.getItem('debug') === 'true';
+    if (debug) {
+      document.getElementById('debug-info').style.display = 'block';
+    }
+
+    function logDebugInfo(message, data) {
+      if (debug) {
+        const debugEl = document.getElementById('debug-info');
+        const timestamp = new Date().toISOString().substr(11, 8);
+        let content = `<div>[${timestamp}] ${message}</div>`;
+        
+        if (data) {
+          if (typeof data === 'object') {
+            content += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          } else {
+            content += `<pre>${data}</pre>`;
+          }
+        }
+        
+        debugEl.innerHTML += content;
+      }
+    }
+
+    function showError(message) {
+      const errorContainer = document.getElementById('error-container');
+      errorContainer.style.display = 'block';
+      errorContainer.className = 'error-message';
+      errorContainer.innerHTML = `
+        <strong>Error:</strong> ${message}
+        <p>If this issue persists, please contact customer support.</p>
+      `;
+      document.getElementById('processing-message').style.display = 'none';
+    }
+
+    async function checkAuth() {
+      try {
+        logDebugInfo('Checking authentication status');
+        const response = await fetch('/api/auth/check', {
+          credentials: 'include'
+        });
+        
+        const data = await response.json();
+        logDebugInfo('Auth check response', data);
+        
+        return data.authenticated;
+      } catch (error) {
+        logDebugInfo('Auth check error', error);
+        return false;
+      }
+    }
+
+    async function processPurchase() {
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get('session_id');
+      
+      if (!sessionId) {
+        logDebugInfo('No session ID in URL');
+        showError('No session ID found. Please contact support.');
+        return;
+      }
+      
+      logDebugInfo('Processing purchase with session ID', sessionId);
+      
+      try {
+        // First check if user is authenticated
+        const isAuthenticated = await checkAuth();
+        
+        if (!isAuthenticated) {
+          logDebugInfo('User not authenticated, redirecting to login');
+          // Save session ID to localStorage to resume after login
+          localStorage.setItem('pendingSessionId', sessionId);
+          window.location.href = '/login.html?redirect=/success&verify=true';
+          return;
+        }
+        
+        // Verify the session with your server
+        logDebugInfo('Sending verify-session request');
+        const response = await fetch('/api/payments/verify-session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ sessionId }),
+          credentials: 'include'
+        });
+        
+        const data = await response.json();
+        logDebugInfo('Verify session response', data);
+        
+        if (data.success) {
+          // Get updated subscription details
+          logDebugInfo('Getting subscription status');
+          const subResponse = await fetch('/api/payments/subscription-status', {
+            credentials: 'include'
+          });
+          
+          if (subResponse.ok) {
+            const subData = await subResponse.json();
+            logDebugInfo('Subscription status response', subData);
+            
+            const detailsDiv = document.getElementById('subscription-details');
+            const expiryDate = new Date(subData.expiresAt).toLocaleDateString();
+            
+            detailsDiv.innerHTML = `
+              <div style="margin: 2rem 0; padding: 1rem; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
+                <p><strong>Subscription Tier:</strong> ${subData.tier.charAt(0).toUpperCase() + subData.tier.slice(1)}</p>
+                <p><strong>Expires:</strong> ${expiryDate}</p>
+                <p><strong>CV Limit:</strong> ${subData.allowedCVs}</p>
+                <p><strong>Analytics:</strong> ${subData.hasAnalytics ? 'Included' : 'Not included'}</p>
+              </div>
+            `;
+          } else {
+            const errorText = await subResponse.text();
+            logDebugInfo('Subscription status error', errorText);
+            showError('Could not fetch subscription details. Your payment has been processed.');
+          }
+          
+          document.getElementById('processing-message').style.display = 'none';
+        } else {
+          logDebugInfo('Session verification failed', data.error);
+          showError(data.error || 'There was an issue verifying your payment.');
+        }
+      } catch (error) {
+        logDebugInfo('Error in payment processing', error);
+        showError('An error occurred verifying your payment. Your card may have been charged, but we could not update your account. Please contact support for assistance.');
+      }
+    }
+
+    // Check if we were redirected from login with a pending session
+    function checkPendingSession() {
+      const params = new URLSearchParams(window.location.search);
+      const verify = params.get('verify');
+      
+      if (verify === 'true') {
+        logDebugInfo('Checking for pending session ID after login');
+        const pendingSessionId = localStorage.getItem('pendingSessionId');
+        
+        if (pendingSessionId) {
+          logDebugInfo('Found pending session ID', pendingSessionId);
+          localStorage.removeItem('pendingSessionId');
+          // Add the session ID to the URL without reloading
+          const url = new URL(window.location);
+          url.searchParams.set('session_id', pendingSessionId);
+          window.history.replaceState({}, '', url);
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Enable debug mode with URL param
+      if (window.location.search.includes('debug=true')) {
+        sessionStorage.setItem('debug', 'true');
+        document.getElementById('debug-info').style.display = 'block';
+      }
+      
+      logDebugInfo('Success page loaded');
+      
+      // Add a small delay to ensure all scripts are loaded
+      setTimeout(async () => {
+        try {
+          // Check if we were redirected from login
+          checkPendingSession();
+          
+          // Process the purchase
+          await processPurchase();
+        } catch (error) {
+          logDebugInfo('Error in initialization:', error);
+          showError('An error occurred while processing your payment information. Please contact support if this persists.');
+        }
+      }, 500);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Dashboard - CVgenius</title>
+    <!-- Added D3.js library for circle packing -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="modernAnalytics.css">
+    <style>
+        :root {
+            --primary: #003459;
+            --secondary: #007ea7;
+            --accent: #00a8e8;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #dee2e6;
+            --card-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.08);
+            --transition: all 0.25s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 1rem 0;
+        }
+
+        .header-container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .logo i {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--gray);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .nav-links .button {
+            background-color: var(--accent);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links .button:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        /* Main content */
+        main {
+            flex-grow: 1;
+            max-width: 1140px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .welcome-section {
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .subscription-badge {
+            display: inline-block;
+            background-color: var(--light);
+            color: var(--secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-left: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            background-color: white;
+            padding: 1.5rem 0;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        .footer-container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-text {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer-links a {
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="/" class="logo">
+                <i class="fas fa-file-alt"></i>
+                <span>CVgenius</span>
+            </a>
+            <div class="nav-links">
+                <a href="/dashboard.html">Dashboard</a>
+                <a href="/">Home</a>
+                <button id="logoutBtn" class="button">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="welcome-section">
+            <h1>Modern Analytics <span id="subscriptionBadge" class="subscription-badge">Premium Plan</span></h1>
+            <p>View detailed performance metrics for your CVs</p>
+        </section>
+
+        <!-- Modern Analytics Section -->
+        <div class="modern-analytics-container">
+            <div class="analytics-panel-header">
+                <div class="analytics-panel-title">
+                    <i class="fas fa-chart-line"></i> CV Performance Insights
+                </div>
+                <select id="modern-cv-selector" class="form-control" style="width: auto; min-width: 200px;">
+                    <option value="">Select a CV to view analytics</option>
+                </select>
+            </div>
+            
+            <div class="analytics-grid">
+                <!-- CV Performance Summary -->
+                <div class="analytics-grid-full">
+                    <div class="analytics-card animate-fade-in">
+                        <div class="analytics-card-header">
+                            <h3 class="analytics-card-title"><i class="fas fa-tachometer-alt"></i> Performance Overview</h3>
+                            <span id="last-updated-date" class="text-muted" style="font-size: 0.85rem;">Last updated: Today</span>
+                        </div>
+                        <div class="analytics-card-body">
+                            <div class="analytics-summary">
+                                <div class="analytics-summary-item">
+                                    <div class="analytics-summary-value" id="modern-total-views">0</div>
+                                    <div class="analytics-summary-label">Total Views</div>
+                                </div>
+                                <div class="analytics-summary-item">
+                                    <div class="analytics-summary-value" id="modern-total-interactions">0</div>
+                                    <div class="analytics-summary-label">Interactions</div>
+                                </div>
+                                <div class="analytics-summary-item">
+                                    <div class="analytics-summary-value" id="modern-interaction-rate">0</div>
+                                    <div class="analytics-summary-label">Interactions/View</div>
+                                </div>
+                                <div class="analytics-summary-item">
+                                    <div class="analytics-summary-value" id="modern-unique-sections">0</div>
+                                    <div class="analytics-summary-label">Unique Sections Visited</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Engagement Score -->
+                <div class="analytics-grid-half">
+                    <div class="analytics-card animate-slide-up" style="animation-delay: 0.1s;">
+                        <div class="analytics-card-header">
+                            <h3 class="analytics-card-title"><i class="fas fa-star"></i> Engagement Score</h3>
+                        </div>
+                        <div class="analytics-card-body">
+                            <div id="engagement-score-container">
+                                <!-- Will be populated by createEngagementScore() -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Section Interactions Radar -->
+                <div class="analytics-grid-half">
+                    <div class="analytics-card animate-slide-up" style="animation-delay: 0.2s;">
+                        <div class="analytics-card-header">
+                            <h3 class="analytics-card-title"><i class="fas fa-bullseye"></i> Section Engagement</h3>
+                        </div>
+                        <div class="analytics-card-body">
+                            <canvas id="radar-chart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modern Heatmap -->
+                <div class="analytics-grid-full">
+                    <div class="analytics-card animate-slide-up" style="animation-delay: 0.3s;">
+                        <div class="analytics-card-header">
+                            <h3 class="analytics-card-title"><i class="fas fa-fire"></i> Interaction Heatmap</h3>
+                        </div>
+                        <div class="analytics-card-body">
+                            <div id="modern-heatmap-container">
+                                <!-- Will be populated by createModernHeatmap() -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- View Timeline -->
+                <div class="analytics-grid-full">
+                    <div class="analytics-card animate-slide-up" style="animation-delay: 0.4s;">
+                        <div class="analytics-card-header">
+                            <h3 class="analytics-card-title"><i class="fas fa-calendar-alt"></i> View Timeline</h3>
+                        </div>
+                        <div class="analytics-card-body">
+                            <div id="view-timeline-container">
+                                <!-- Will be populated by createViewTimeline() -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Circle Packing (optional for advanced users) -->
+                <div class="analytics-grid-full">
+                    <div class="analytics-panel expanded animate-slide-up" style="animation-delay: 0.5s;">
+                        <div class="analytics-panel-header">
+                            <div class="analytics-panel-title">
+                                <i class="fas fa-project-diagram"></i> Advanced Visualization
+                            </div>
+                            <div class="analytics-panel-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="analytics-panel-body" style="max-height: 2000px;">
+                            <div class="analytics-card" style="margin-top: 1rem;">
+                                <div class="analytics-card-body">
+                                    <p class="text-muted mb-4">This visualization uses a hierarchical circle packing algorithm to group interactions by section type. Larger circles represent more interactions. Hover over circles for details.</p>
+                                    <div id="modern-circle-packing" style="height: 600px; display: flex; justify-content: center; align-items: center;">
+                                        <!-- Will be populated by createCirclePacking() -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-text">
+                &copy; 2025 CVgenius. All rights reserved.
+            </div>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Add required libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/circlePacking.js"></script>
+    <script src="js/modernAnalytics.js"></script>
+    
+    <script>
+        // Initialize expandable panels
+        function initExpandablePanels() {
+            document.querySelectorAll('.analytics-panel-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const panel = header.closest('.analytics-panel');
+                    panel.classList.toggle('expanded');
+                    
+                    // Update panel body max-height when toggling
+                    const body = panel.querySelector('.analytics-panel-body');
+                    if (body) {
+                        if (panel.classList.contains('expanded')) {
+                            body.style.maxHeight = '2000px';
+                        } else {
+                            body.style.maxHeight = '0';
+                        }
+                    }
+                });
+            });
+        }
+        
+        // Load user's CVs for the dropdown
+        async function loadUserCVs() {
+            try {
+                const response = await fetch('/api/cv/user/cvs');
+                const cvs = await response.json();
+                
+                // Update modern selector
+                const modernSelector = document.getElementById('modern-cv-selector');
+                modernSelector.innerHTML = '<option value="">Select a CV to view analytics</option>';
+                
+                cvs.forEach(cv => {
+                    // Add to modern selector
+                    const modernOption = document.createElement('option');
+                    modernOption.value = cv.urlId;
+                    modernOption.textContent = cv.fileName || `CV ${cv.urlId}`;
+                    modernSelector.appendChild(modernOption);
+                });
+                
+                // Add change listener to modern selector
+                modernSelector.addEventListener('change', function() {
+                    if (this.value) {
+                        loadCVAnalytics(this.value);
+                    }
+                });
+                
+                // If there's at least one CV, auto-select the first one
+                if (cvs.length > 0) {
+                    modernSelector.value = cvs[0].urlId;
+                    // Trigger the change event
+                    const event = new Event('change');
+                    modernSelector.dispatchEvent(event);
+                }
+            } catch (error) {
+                console.error('Error loading CVs:', error);
+            }
+        }
+        
+        // Load analytics for a specific CV
+        async function loadCVAnalytics(cvId) {
+            try {
+                const response = await fetch(`/api/analytics/cv/${cvId}`);
+                
+                // Check if response indicates subscription requirement
+                if (response.status === 403) {
+                    const data = await response.json();
+                    if (data.requiresUpgrade) {
+                        alert('Analytics access requires premium subscription. Please upgrade your plan.');
+                        return;
+                    }
+                }
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load CV analytics');
+                }
+                
+                const data = await response.json();
+                
+                // Update the modern analytics visualizations
+                updateModernAnalytics(data);
+            } catch (error) {
+                console.error('Error loading CV analytics:', error);
+            }
+        }
+        
+        // Update modern analytics visualizations
+        function updateModernAnalytics(data) {
+            // Update summary stats
+            const totalViews = data.views || 0;
+            const totalInteractions = data.sectionInteractions.reduce((sum, section) => sum + section.clicks, 0);
+            const interactionRate = totalViews > 0 ? (totalInteractions / totalViews).toFixed(1) : '0';
+            const uniqueSections = new Set(data.sectionInteractions.map(s => s.sectionId)).size;
+            
+            document.getElementById('modern-total-views').textContent = totalViews;
+            document.getElementById('modern-total-interactions').textContent = totalInteractions;
+            document.getElementById('modern-interaction-rate').textContent = interactionRate;
+            document.getElementById('modern-unique-sections').textContent = uniqueSections;
+            
+            // Update last viewed date if available
+            if (data.lastViewed) {
+                const lastViewedDate = new Date(data.lastViewed);
+                document.getElementById('last-updated-date').textContent = 
+                    `Last updated: ${lastViewedDate.toLocaleDateString()}`;
+            }
+            
+            // Create radar chart
+            createRadarChart('radar-chart', data.sectionInteractions);
+            
+            // Create modern heatmap
+            createModernHeatmap('modern-heatmap-container', data.sectionInteractions);
+            
+            // Create view timeline (with mock data if needed)
+            const viewsData = Array(totalViews).fill().map(() => ({
+                date: data.lastViewed ? new Date(data.lastViewed) : new Date()
+            }));
+            createViewTimeline('view-timeline-container', viewsData);
+            
+            // Create engagement score
+            createEngagementScore('engagement-score-container', data);
+            
+            // Create circle packing visualization
+            if (data.sectionInteractions && data.sectionInteractions.length > 0) {
+                const circlePackData = prepareCirclePackingData(data);
+                createCirclePacking(circlePackData, 'modern-circle-packing');
+            } else {
+                document.getElementById('modern-circle-packing').innerHTML = 
+                    '<div class="empty-state-chart"><i class="fas fa-project-diagram"></i><p>No interaction data available yet</p></div>';
+            }
+        }
+        
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.href = '/login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+        
+        // Main initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize expandable panels
+            initExpandablePanels();
+            
+            // Load user's CVs
+            loadUserCVs();
+        });
+    </script>
+</body>
+</html>

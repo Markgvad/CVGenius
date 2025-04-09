@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: cvgenius
+    env: node
+    plan: starter
+    buildCommand: npm ci && chmod +x start.sh
+    startCommand: ./start.sh
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DOMAIN
+        value: https://cvgenius.onrender.com
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-3-7-sonnet-20250219
+      - key: USE_MCP
+        value: false

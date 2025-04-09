@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVGenius - Upload Your CV</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-file-alt"></i> CVGenius</h1>
+            <p>Upload your CV and let AI help you create a professional, standout resume</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="upload-section">
+            <h2>Upload Your CV</h2>
+            <p>Supported formats: PDF, DOC, DOCX</p>
+            
+            <form id="upload-form" class="upload-form">
+                <div class="file-drop-area" id="drop-area">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag & drop your CV here or click to browse</p>
+                    <input type="file" id="file-input" name="cvFile" accept=".pdf,.doc,.docx" required>
+                </div>
+                
+                <div class="selected-file" id="selected-file">
+                    <p>No file selected</p>
+                </div>
+                
+                <button type="submit" id="upload-btn" disabled>
+                    <i class="fas fa-upload"></i> Upload and Process
+                </button>
+            </form>
+            
+            <div class="loading-container" id="loading-container" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p id="loading-text">Uploading and processing your CV...</p>
+            </div>
+        </section>
+        
+        <section class="how-it-works">
+            <h2>How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <h3>1. Upload</h3>
+                    <p>Upload your existing CV in PDF, DOC, or DOCX format</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>2. AI Processing</h3>
+                    <p>Our AI extracts and structures your CV data</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <h3>3. Edit</h3>
+                    <p>Review and edit your CV in our intuitive editor</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-file-export"></i>
+                    </div>
+                    <h3>4. Export</h3>
+                    <p>Generate your professionally designed CV</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 CVGenius. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropArea = document.getElementById('drop-area');
+            const fileInput = document.getElementById('file-input');
+            const selectedFile = document.getElementById('selected-file');
+            const uploadBtn = document.getElementById('upload-btn');
+            const uploadForm = document.getElementById('upload-form');
+            const loadingContainer = document.getElementById('loading-container');
+            
+            // Handle file selection
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    selectedFile.innerHTML = `
+                        <p><i class="fas fa-file"></i> ${file.name} (${formatFileSize(file.size)})</p>
+                    `;
+                    uploadBtn.disabled = false;
+                } else {
+                    selectedFile.innerHTML = `<p>No file selected</p>`;
+                    uploadBtn.disabled = true;
+                }
+            });
+            
+            // Handle drag and drop
+            dropArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropArea.classList.add('active');
+            });
+            
+            dropArea.addEventListener('dragleave', () => {
+                dropArea.classList.remove('active');
+            });
+            
+            dropArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropArea.classList.remove('active');
+                
+                if (e.dataTransfer.files.length > 0) {
+                    fileInput.files = e.dataTransfer.files;
+                    
+                    // Trigger change event
+                    const event = new Event('change');
+                    fileInput.dispatchEvent(event);
+                }
+            });
+            
+            // Click to browse
+            dropArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            // Handle form submission
+            uploadForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (fileInput.files.length === 0) {
+                    alert('Please select a file to upload');
+                    return;
+                }
+                
+                // Validate file type
+                const allowedTypes = ['.pdf', '.doc', '.docx'];
+                const fileName = fileInput.files[0].name;
+                const fileExtension = '.' + fileName.split('.').pop().toLowerCase();
+                
+                if (!allowedTypes.includes(fileExtension)) {
+                    alert('Please upload a PDF, DOC, or DOCX file only.');
+                    return;
+                }
+                
+                // Validate file size (10MB limit)
+                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                if (fileInput.files[0].size > maxSize) {
+                    alert('File size exceeds the 10MB limit. Please upload a smaller file.');
+                    return;
+                }
+                
+                // Show loading spinner
+                uploadForm.style.display = 'none';
+                loadingContainer.style.display = 'flex';
+                
+                // Create FormData
+                const formData = new FormData();
+                formData.append('cvFile', fileInput.files[0]);
+                
+                try {
+                    const response = await fetch('/api/cv/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        // Handle HTTP errors like 403, 404, 500
+                        const errorData = await response.json();
+                        if (response.status === 403 && errorData.requiresUpgrade) {
+                            alert(`CV limit reached: ${errorData.message || 'You have reached your CV limit. Please upgrade your plan or delete an existing CV.'}`);
+                        } else {
+                            alert(errorData.error || `Error uploading CV: ${response.statusText}`);
+                        }
+                        // Hide loading spinner
+                        uploadForm.style.display = 'block';
+                        loadingContainer.style.display = 'none';
+                        return;
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Redirect to CV editor
+                        window.location.href = data.redirectUrl;
+                    } else {
+                        alert(data.error || 'Error uploading CV');
+                        // Hide loading spinner
+                        uploadForm.style.display = 'block';
+                        loadingContainer.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error uploading CV. Please try again.');
+                    // Hide loading spinner
+                    uploadForm.style.display = 'block';
+                    loadingContainer.style.display = 'none';
+                }
+            });
+            
+            // Format file size
+            function formatFileSize(bytes) {
+                if (bytes < 1024) {
+                    return bytes + ' bytes';
+                } else if (bytes < 1024 * 1024) {
+                    return (bytes / 1024).toFixed(2) + ' KB';
+                } else {
+                    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+                }
+            }
+        });
+// Check CV limits before allowing upload
+async function checkCVLimits() {
+  try {
+    // Get subscription status
+    const statusResponse = await fetch('/api/payments/subscription-status');
+    if (!statusResponse.ok) {
+      throw new Error('Failed to fetch subscription status');
+    }
+    const subscription = await statusResponse.json();
+    
+    // Get current CV count
+    const countResponse = await fetch('/api/cv/user/count');
+    if (!countResponse.ok) {
+      throw new Error('Failed to fetch CV count');
+    }
+    const countData = await countResponse.json();
+    
+    // Special handling for Infinity value (premium plans have unlimited CVs)
+    if (subscription.allowedCVs === Infinity || 
+        subscription.allowedCVs === "Infinity" || 
+        subscription.allowedCVs > 1000) {
+      // Unlimited CVs - always allow uploads
+      return true;
+    }
+    
+    if (countData.count >= subscription.allowedCVs) {
+      const uploadForm = document.getElementById('upload-form');
+      const uploadButton = document.querySelector('#upload-form button[type="submit"]');
+      
+      if (uploadButton) {
+        uploadButton.disabled = true;
+        uploadButton.textContent = 'CV Limit Reached';
+      }
+      
+      // Add an upgrade message
+      const limitMessage = document.createElement('div');
+      limitMessage.className = 'alert alert-warning';
+      limitMessage.innerHTML = `
+        <strong>CV limit reached!</strong> Your ${subscription.tier} subscription allows ${subscription.allowedCVs} CV(s).
+        <br><a href="/pricing.html" class="btn btn-sm btn-primary mt-2">Upgrade Plan</a>
+        <br>Or delete an existing CV from your <a href="/dashboard.html">dashboard</a> to create a new one.
+      `;
+      
+      if (uploadForm) {
+        uploadForm.prepend(limitMessage);
+      }
+      
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error checking CV limits:', error);
+    return true; // Allow upload on error to avoid blocking users
+  }
+}
+
+// Call this function before attempting upload:
+document.addEventListener('DOMContentLoaded', async () => {
+  await checkCVLimits();
+  
+  // Add it to the form submit handler
+  const uploadForm = document.getElementById('upload-form');
+  if (uploadForm) {
+    const originalSubmitHandler = uploadForm.onsubmit;
+    uploadForm.onsubmit = async function(e) {
+      e.preventDefault();
+      
+      const canUpload = await checkCVLimits();
+      if (!canUpload) {
+        alert('You have reached your CV limit. Please upgrade your plan or delete an existing CV.');
+        return false;
+      }
+      
+      // Continue with the original handler
+      if (typeof originalSubmitHandler === 'function') {
+        return originalSubmitHandler.call(this, e);
+      }
+    };
+  }
+});
+    </script>
+</body>
+</html>

@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Genius - Subscription Plans</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://js.stripe.com/v3/"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #2ec4b6;
+            --accent: #ff9f1c;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --success: #2ec4b6;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7ff;
+        }
+
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        nav a.active {
+            color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        .hero {
+            text-align: center;
+            padding: 5rem 1rem 3rem;
+            background: linear-gradient(135deg, #f5f7ff 0%, #e8eaff 100%);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .pricing-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin: 3rem auto 6rem;
+            max-width: 1400px;
+            padding: 0 1rem;
+        }
+        
+        .pricing-plan {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2.5rem;
+            width: 350px;
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            height: 550px;
+        }
+        
+        .pricing-plan:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .pricing-plan.popular {
+            border: 2px solid var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .pricing-plan.popular::before {
+            content: "Most Popular";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--primary);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .plan-header {
+            margin-bottom: 2rem;
+        }
+        
+        .plan-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gray);
+            margin-bottom: 1rem;
+            display: inline-block;
+            padding: 0.35rem 1rem;
+            background-color: rgba(67, 97, 238, 0.1);
+            border-radius: 20px;
+        }
+        
+        .plan-price {
+            font-size: 3.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            line-height: 1;
+        }
+        
+        .plan-price span {
+            font-size: 1.1rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .price-description {
+            font-size: 0.95rem;
+            color: var(--gray);
+        }
+        
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin: 2rem 0;
+            text-align: left;
+        }
+        
+        .plan-features li {
+            margin-bottom: 1rem;
+            padding-left: 1.8rem;
+            position: relative;
+            font-size: 0.95rem;
+        }
+        
+        .plan-features li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 6px;
+            width: 18px;
+            height: 18px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234361ee'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        
+        .subscribe-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.2);
+        }
+        
+        .subscribe-btn:hover {
+            background-color: var(--primary-dark);
+            box-shadow: 0 5px 20px rgba(67, 97, 238, 0.4);
+        }
+        
+        .subscribe-btn:disabled {
+            background-color: var(--gray);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        .free-btn {
+            background-color: var(--success);
+            box-shadow: 0 5px 15px rgba(46, 196, 182, 0.2);
+        }
+        
+        .free-btn:hover {
+            background-color: #25a89c;
+            box-shadow: 0 5px 20px rgba(46, 196, 182, 0.4);
+        }
+        
+        /* Loading indicator */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Current plan indicator */
+        .current-plan {
+            background: linear-gradient(to bottom, #f5f7ff, white);
+            border: 2px solid var(--primary);
+        }
+        
+        .current-plan-badge {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+            z-index: 1;
+        }
+
+        /* Savings tag */
+        .savings-tag {
+            position: absolute;
+            top: 20px;
+            right: -10px;
+            background-color: var(--accent);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transform: rotate(5deg);
+            box-shadow: 0 3px 10px rgba(255, 159, 28, 0.3);
+        }
+
+        .savings-tag::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            right: 0;
+            width: 10px;
+            height: 5px;
+            background-color: #e08900;
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-top: auto;
+        }
+
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .pricing-plan {
+                width: 320px;
+                padding: 2rem;
+                height: 520px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .pricing-container {
+                gap: 3rem;
+            }
+            
+            .pricing-plan {
+                width: 100%;
+                max-width: 400px;
+                height: auto;
+            }
+            
+            .pricing-plan.popular {
+                transform: scale(1);
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            nav {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            nav ul {
+                margin-top: 1rem;
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">CV Genius</div>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="pricing.html" class="active">Pricing</a></li>
+                <li id="loginLink"><a href="login.html">Login</a></li>
+                <li id="registerLink"><a href="register.html">Register</a></li>
+                <li id="dashboardLink" style="display: none;"><a href="dashboard.html">Dashboard</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <section class="hero">
+            <h1>Choose Your Perfect Plan</h1>
+            <p>Unlock the full potential of your professional journey with our tailored subscription options</p>
+        </section>
+        
+        <section class="pricing-container">
+            <div class="pricing-plan" id="free-plan-card">
+                <div class="plan-header">
+                    <div class="plan-name">Free</div>
+                    <div class="plan-price">$0</div>
+                    <p class="price-description">Get started at no cost</p>
+                </div>
+                <ul class="plan-features">
+                    <li>1 interactive CV - Create and customize your professional resume</li>
+                    <li>Free Hosting - Share your CV online with a unique URL</li>
+                </ul>
+                <button class="subscribe-btn free-btn" id="free-plan-btn">Start building your career</button>
+            </div>
+            
+            <div class="pricing-plan" id="premium-monthly-plan-card">
+                <div class="plan-header">
+                    <div class="plan-name">Premium Monthly</div>
+                    <div class="plan-price">$7 <span>/month</span></div>
+                    <p class="price-description">Billed monthly</p>
+                </div>
+                <ul class="plan-features">
+                    <li>Unlimited CVs & Editing </li>
+                    <li>Advanced Analytics - Which sections are being expanded on your CV</li>
+                    <li>PDF Landing Page - Direct employers to your interactive CV</li>
+                </ul>
+                <button class="subscribe-btn" id="premium-monthly-plan-btn">Maximize your job search</button>
+            </div>
+            
+            <div class="pricing-plan popular" id="premium-plan-card">
+                <div class="savings-tag">Save 30%</div>
+                <div class="plan-header">
+                    <div class="plan-name">Premium Yearly</div>
+                    <div class="plan-price">$59 <span>/year</span></div>
+                    <p class="price-description">Just $4.92/month, billed annually</p>
+                </div>
+                <ul class="plan-features">
+                    <li>All Premium Monthly Features</li>
+                    <li>Save over 30% compared to monthly billing</li>
+                    <li>Priority customer support</li>
+                    <li>Early access to new features</li>
+                </ul>
+                <button class="subscribe-btn" id="premium-plan-btn">Get the best value</button>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 CV Genius. All rights reserved.</p>
+    </footer>
+    
+    <script>
+    // Fetch the Stripe publishable key from the server
+    let stripe;
+    
+    async function initStripe() {
+        try {
+            const response = await fetch('/api/payments/stripe-config');
+            if (!response.ok) {
+                throw new Error('Failed to load Stripe configuration');
+            }
+            
+            const { publishableKey } = await response.json();
+            console.log('Using Stripe key mode:', publishableKey.startsWith('pk_test') ? 'test' : 'live');
+            
+            // Initialize Stripe with the key from the server
+            stripe = Stripe(publishableKey);
+        } catch (error) {
+            console.error('Error initializing Stripe:', error);
+            alert('Payment system is currently unavailable. Please try again later.');
+        }
+    }
+    
+    // Initialize Stripe when the page loads
+    initStripe();
+        
+        // Handle button clicks
+        document.getElementById('free-plan-btn').addEventListener('click', () => {
+            // For free plan, just redirect to CV editor
+            window.location.href = '/cv-editor.html';
+        });
+        
+        document.getElementById('premium-monthly-plan-btn').addEventListener('click', async (e) => {
+            const button = e.target;
+            button.disabled = true;
+            button.innerHTML = '<span class="loading"></span> Processing...';
+            
+            // Make sure Stripe is initialized
+            if (!stripe) {
+                await initStripe();
+                if (!stripe) {
+                    alert('Payment system is not available. Please try again later.');
+                    button.disabled = false;
+                    button.innerHTML = 'Subscribe';
+                    return;
+                }
+            }
+            
+            await createCheckoutSession('premium-monthly');
+            button.disabled = false;
+            button.innerHTML = 'Maximize your job search';
+        });
+        
+        document.getElementById('premium-plan-btn').addEventListener('click', async (e) => {
+            const button = e.target;
+            button.disabled = true;
+            button.innerHTML = '<span class="loading"></span> Processing...';
+            
+            // Make sure Stripe is initialized
+            if (!stripe) {
+                await initStripe();
+                if (!stripe) {
+                    alert('Payment system is not available. Please try again later.');
+                    button.disabled = false;
+                    button.innerHTML = 'Upgrade to Premium';
+                    return;
+                }
+            }
+            
+            await createCheckoutSession('premium');
+            button.disabled = false;
+            button.innerHTML = 'Get the best value';
+        });
+        
+        async function createCheckoutSession(plan) {
+            try {
+                const response = await fetch('/api/payments/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ plan }),
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to create checkout session');
+                }
+                
+                const session = await response.json();
+                
+                // Redirect to Stripe checkout
+                if (session.sessionId) {
+                    stripe.redirectToCheckout({ sessionId: session.sessionId });
+                } else {
+                    alert('Failed to create checkout session');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert(error.message || 'An error occurred. Please try again.');
+            }
+        }
+        
+        // Check authentication and subscription status
+        async function checkAuthAndSubscription() {
+            try {
+                // Check if user is logged in
+                const authResponse = await fetch('/api/auth/me', {
+                    credentials: 'include'
+                });
+                
+                if (!authResponse.ok) {
+                    // Not logged in, show login/register links and handle free plan button
+                    document.getElementById('loginLink').style.display = 'inline-block';
+                    document.getElementById('registerLink').style.display = 'inline-block';
+                    document.getElementById('dashboardLink').style.display = 'none';
+                    
+                    // Make paid plans redirect to login
+                    ['premium-monthly-plan-btn', 'premium-plan-btn'].forEach(id => {
+                        document.getElementById(id).addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            alert('Please log in to subscribe to a plan');
+                            window.location.href = '/login.html?redirect=/pricing.html';
+                        });
+                    });
+                    
+                    return;
+                }
+                
+                // User is logged in
+                document.getElementById('loginLink').style.display = 'none';
+                document.getElementById('registerLink').style.display = 'none';
+                document.getElementById('dashboardLink').style.display = 'inline-block';
+                
+                // Check current subscription
+                const subscriptionResponse = await fetch('/api/payments/subscription-status', {
+                    credentials: 'include'
+                });
+                
+                if (subscriptionResponse.ok) {
+                    const data = await subscriptionResponse.json();
+                    const currentPlan = data.tier;
+                    
+                    // Mark current plan
+                    document.getElementById(`${currentPlan}-plan-card`).classList.add('current-plan');
+                    
+                    // Add "Current Plan" badge
+                    const badge = document.createElement('div');
+                    badge.className = 'current-plan-badge';
+                    badge.textContent = 'Current';
+                    document.getElementById(`${currentPlan}-plan-card`).appendChild(badge);
+                    
+                    // Disable current plan button
+                    const planButton = document.getElementById(`${currentPlan}-plan-btn`);
+                    planButton.textContent = 'Current Plan';
+                    planButton.disabled = true;
+                    
+                    // Change button text for higher tier plans
+                    if (currentPlan === 'free') {
+                        document.getElementById('premium-monthly-plan-btn').textContent = 'Upgrade';
+                        document.getElementById('premium-plan-btn').textContent = 'Upgrade';
+                    } else if (currentPlan === 'premium-monthly') {
+                        document.getElementById('premium-plan-btn').textContent = 'Upgrade to Yearly';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking auth status:', error);
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', checkAuthAndSubscription);
+    </script>
+</body>
+</html>

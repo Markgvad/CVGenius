@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVGenius - CV Editor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-file-alt"></i> CVGenius</h1>
+            <p>Edit your CV information</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="editor-container">
+            <aside class="editor-sidebar">
+                <nav class="editor-nav">
+                    <ul>
+                        <li class="active" data-target="personal-info"><i class="fas fa-user"></i> Personal Info</li>
+                        <li data-target="profile"><i class="fas fa-address-card"></i> Profile</li>
+                        <li data-target="metrics"><i class="fas fa-chart-line"></i> Key Metrics</li>
+                        <li data-target="experience"><i class="fas fa-briefcase"></i> Experience</li>
+                        <li data-target="skills"><i class="fas fa-tools"></i> Skills</li>
+                        <li data-target="education"><i class="fas fa-graduation-cap"></i> Education</li>
+                        <li data-target="languages"><i class="fas fa-language"></i> Languages</li>
+                    </ul>
+                </nav>
+                <div class="editor-actions">
+                    <button id="save-btn" class="secondary-btn"><i class="fas fa-save"></i> Save</button>
+                    <button id="generate-btn" class="primary-btn"><i class="fas fa-file-export"></i> Generate CV</button>
+                </div>
+            </aside>
+            
+            <div class="editor-content">
+                <!-- Custom URL Container -->
+                <div id="custom-url-container" class="alert" style="display:none; margin-bottom: 20px; padding: 15px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; color: #155724;">
+                  <h4 style="margin-top: 0;"><i class="fas fa-link"></i> Your CV Link</h4>
+                  <p>Your CV will be available at: <a id="custom-url-link" href="#" target="_blank"></a></p>
+                  <p style="margin-bottom: 0; font-size: 0.85em; color: #6c757d;">This link will work once you generate the final CV by clicking "Generate CV"</p>
+                </div>
+                
+                <!-- Personal Info Section -->
+                <div class="editor-section active" id="personal-info">
+                    <h2>Personal Information</h2>
+                    
+                    <!-- Profile Picture Upload -->
+                    <div class="form-group profile-picture-container">
+                        <label>Profile Picture</label>
+                        <div class="profile-picture-upload">
+                            <div class="profile-picture-preview">
+                                <img id="profile-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24'%3E%3Cpath fill='%23cccccc' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E" alt="Profile Picture">
+                                <div class="crop-overlay">
+                                    <div class="crop-circle"></div>
+                                </div>
+                            </div>
+                            <div class="profile-picture-controls">
+                                <input type="file" id="profile-upload" accept="image/*" style="display: none;">
+                                <button type="button" id="select-image-btn" class="secondary-btn"><i class="fas fa-upload"></i> Select Image</button>
+                                <button type="button" id="crop-image-btn" class="secondary-btn" disabled><i class="fas fa-crop-alt"></i> Crop</button>
+                                <button type="button" id="remove-image-btn" class="secondary-btn" disabled><i class="fas fa-trash"></i> Remove</button>
+                            </div>
+                        </div>
+                        <p class="help-text">Upload a professional profile picture. A circular crop will be applied.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="title">Professional Title</label>
+                        <input type="text" id="title" placeholder="Software Engineer">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="johndoe@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="tel" id="phone" placeholder="+1 234 567 890">
+                    </div>
+                    <div class="form-group">
+                        <label for="linkedin">LinkedIn</label>
+                        <input type="text" id="linkedin" placeholder="linkedin.com/in/johndoe">
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" placeholder="New York, NY">
+                    </div>
+                </div>
+                
+                <!-- Profile Section -->
+                <div class="editor-section" id="profile">
+                    <h2>Professional Profile</h2>
+                    <div class="form-group">
+                        <label for="profile-text">Summary</label>
+                        <textarea id="profile-text" rows="6" placeholder="Write a brief professional summary..."></textarea>
+                    </div>
+                </div>
+                
+                <!-- Metrics Section -->
+                <div class="editor-section" id="metrics">
+                    <h2>Key Metrics</h2>
+                    <p class="section-info">Add key achievements or metrics that highlight your impact. These will appear as highlight boxes at the top of your CV.</p>
+                    
+                    <div class="metrics-example">
+                        <h4>Example Metric Cards: <span class="example-note">(hover to see animation)</span></h4>
+                        <div class="metrics-example-grid">
+                            <div class="metric-example-box animated">
+                                <div class="metric-example-value counter" data-target="10">0</div>
+                                <div class="metric-example-suffix">+</div>
+                                <div class="metric-example-label">Projects Completed</div>
+                            </div>
+                            <div class="metric-example-box animated">
+                                <div class="metric-example-value counter" data-target="5">0</div>
+                                <div class="metric-example-label">Years Experience</div>
+                            </div>
+                            <div class="metric-example-box animated">
+                                <div class="metric-example-value counter" data-target="95">0</div>
+                                <div class="metric-example-suffix">%</div>
+                                <div class="metric-example-label">Client Satisfaction</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="metrics-container">
+                        <!-- Metrics will be added here -->
+                    </div>
+                    
+                    <button id="add-metric" class="add-btn"><i class="fas fa-plus"></i> Add Metric</button>
+                </div>
+                
+                <!-- Experience Section -->
+                <div class="editor-section" id="experience">
+                    <h2>Work Experience</h2>
+                    <p class="section-info">Add your work experience in chronological order (most recent first).</p>
+                    
+                    <button id="add-recent-experience" class="add-btn add-top-btn"><i class="fas fa-plus"></i> Add Recent Experience</button>
+                    
+                    <div id="experience-container">
+                        <!-- Experience items will be added here -->
+                    </div>
+                    
+                    <button id="add-experience" class="add-btn"><i class="fas fa-plus"></i> Add Experience</button>
+                </div>
+                
+                <!-- Skills Section -->
+                <div class="editor-section" id="skills">
+                    <h2>Skills</h2>
+                    
+                    <div id="skills-container">
+                        <!-- Skill categories will be added here -->
+                    </div>
+                    
+                    <button id="add-skill-category" class="add-btn"><i class="fas fa-plus"></i> Add Skill Category</button>
+                </div>
+                
+                <!-- Education Section -->
+                <div class="editor-section" id="education">
+                    <h2>Education</h2>
+                    
+                    <div id="education-container">
+                        <!-- Education items will be added here -->
+                    </div>
+                    
+                    <button id="add-education" class="add-btn"><i class="fas fa-plus"></i> Add Education</button>
+                </div>
+                
+                <!-- Languages Section -->
+                <div class="editor-section" id="languages">
+                    <h2>Languages</h2>
+                    
+                    <div id="languages-container">
+                        <!-- Language items will be added here -->
+                    </div>
+                    
+                    <button id="add-language" class="add-btn"><i class="fas fa-plus"></i> Add Language</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 CVGenius. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Templates for dynamic elements -->
+    <template id="metric-template">
+        <div class="metric-item">
+            <div class="form-group hidden-field">
+                <label>Icon</label>
+                <input type="text" class="metric-icon" placeholder="fas fa-rocket" value="fas fa-chart-line">
+                <span class="field-note">Auto-generated</span>
+            </div>
+            <div class="form-group">
+                <label>Value</label>
+                <input type="text" class="metric-value" placeholder="10">
+            </div>
+            <div class="form-group">
+                <label>Suffix</label>
+                <input type="text" class="metric-suffix" placeholder="+">
+            </div>
+            <div class="form-group">
+                <label>Label</label>
+                <input type="text" class="metric-label" placeholder="Projects Completed">
+            </div>
+            <button class="delete-btn"><i class="fas fa-trash"></i></button>
+        </div>
+    </template>
+    
+    <template id="experience-template">
+        <div class="experience-item">
+            <div class="experience-actions">
+                <button class="move-up-btn" title="Move Up"><i class="fas fa-arrow-up"></i></button>
+                <button class="move-down-btn" title="Move Down"><i class="fas fa-arrow-down"></i></button>
+                <button class="delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+            <div class="form-group">
+                <label>Job Title</label>
+                <input type="text" class="experience-title" placeholder="Software Engineer">
+            </div>
+            <div class="form-group">
+                <label>Company</label>
+                <input type="text" class="experience-company" placeholder="Company Name">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="text" class="experience-start-date" placeholder="Jan 2020">
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="text" class="experience-end-date" placeholder="Present">
+                </div>
+            </div>
+            
+            <div class="form-group collapsible-option">
+                <label class="checkbox-label">
+                    <input type="checkbox" class="make-collapsible" checked>
+                    <span>Hide achievements by default in final CV</span>
+                </label>
+                <p class="help-text">When checked, all achievements will be initially hidden and can be shown by clicking an "Expand" button.</p>
+            </div>
+            
+            <h4>Achievements</h4>
+            <div class="achievements-container">
+                <!-- Achievements will be added here -->
+            </div>
+            
+            <button class="add-achievement-btn"><i class="fas fa-plus"></i> Add Achievement</button>
+        </div>
+    </template>
+    
+    <template id="achievement-template">
+        <div class="achievement-item">
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" class="achievement-title" placeholder="Achievement Title">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea class="achievement-description" rows="3" placeholder="Description of your achievement..."></textarea>
+            </div>
+            <button class="delete-btn"><i class="fas fa-trash"></i></button>
+        </div>
+    </template>
+    
+    <template id="skill-category-template">
+        <div class="skill-category-item">
+            <div class="form-group">
+                <label><i class="fas fa-folder"></i> Category Name</label>
+                <input type="text" class="skill-category-name" placeholder="Technical Skills">
+            </div>
+            <div class="form-group hidden-field">
+                <label>Icon</label>
+                <input type="text" class="skill-category-icon" placeholder="fas fa-code" value="fas fa-code">
+                <span class="field-note">Auto-generated</span>
+            </div>
+            
+            <div class="form-group category-proficiency-container">
+                <label>Category Proficiency Level (0-100%)</label>
+                <input type="range" class="category-level-slider" min="0" max="100" step="1" value="85" data-default="85">
+                <div class="skill-level-display">
+                    <span class="category-level-value">85%</span>
+                    <input type="hidden" class="category-level-hidden" value="85">
+                </div>
+                <p class="help-text">Overall proficiency level for this category</p>
+            </div>
+            
+            <div class="form-group collapsible-option">
+                <label class="checkbox-label">
+                    <input type="checkbox" class="make-skills-collapsible" checked>
+                    <span>Hide skills by default in final CV</span>
+                </label>
+                <p class="help-text">When checked, this category will be collapsed by default and skills will only be shown when expanded.</p>
+            </div>
+            
+            <h4>Skills in this Category</h4>
+            <div class="skills-list-container">
+                <!-- Skills will be added here -->
+            </div>
+            
+            <button class="add-skill-btn"><i class="fas fa-plus"></i> Add Individual Skill to Category</button>
+            <button class="skill-category-delete-btn"><i class="fas fa-trash"></i> Delete Category</button>
+        </div>
+    </template>
+    
+    <template id="skill-item-template">
+        <div class="skill-item">
+            <div class="form-group">
+                <label><i class="fas fa-code"></i> Skill Name</label>
+                <input type="text" class="skill-name" placeholder="JavaScript">
+            </div>
+            <div class="form-group">
+                <label>Proficiency Level (0-100%)</label>
+                <input type="range" class="skill-level-slider" min="0" max="100" step="1" value="50">
+                <div class="skill-level-display">
+                    <span class="skill-level-value">50%</span>
+                    <select class="skill-level" style="display:none;">
+                        <option value="Beginner">Beginner</option>
+                        <option value="Basic">Basic</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                        <option value="Expert">Expert</option>
+                    </select>
+                </div>
+            </div>
+            <button class="delete-btn"><i class="fas fa-trash"></i></button>
+        </div>
+    </template>
+    
+    <template id="education-template">
+        <div class="education-item">
+            <div class="education-actions">
+                <button class="move-up-btn" title="Move Up"><i class="fas fa-arrow-up"></i></button>
+                <button class="move-down-btn" title="Move Down"><i class="fas fa-arrow-down"></i></button>
+                <button class="delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+            <div class="form-group">
+                <label>Degree</label>
+                <input type="text" class="education-degree" placeholder="Bachelor of Science in Computer Science">
+            </div>
+            <div class="form-group">
+                <label>Institution</label>
+                <input type="text" class="education-institution" placeholder="University Name">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Start Year</label>
+                    <input type="text" class="education-start-year" placeholder="2016">
+                </div>
+                <div class="form-group">
+                    <label>End Year</label>
+                    <input type="text" class="education-end-year" placeholder="2020">
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <template id="language-template">
+        <div class="language-item">
+            <div class="form-group">
+                <label>Language</label>
+                <input type="text" class="language-name" placeholder="English">
+            </div>
+            <div class="form-group">
+                <label>Proficiency</label>
+                <input type="text" class="language-proficiency" placeholder="Fluent">
+                <p class="help-text">Examples: Basic, Conversational, Fluent, Native, etc.</p>
+            </div>
+            <button class="delete-btn"><i class="fas fa-trash"></i></button>
+        </div>
+    </template>
+
+    <!-- Modal for generating CV -->
+    <div id="generate-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Generate Your CV</h2>
+            <p>Your CV data has been saved. Click the button below to generate your professional CV.</p>
+            <div class="loading-container" id="generating-container" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>Generating your CV... This will take approximately 3-5 minutes.</p>
+                <p style="font-size: 0.9em; color: #6c757d;">Our AI system is carefully crafting your professional CV with optimal formatting and layout. Please be patient.</p>
+            </div>
+            <div class="modal-actions">
+                <button id="confirm-generate" class="primary-btn"><i class="fas fa-file-export"></i> Generate CV</button>
+                <button id="cancel-generate" class="secondary-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Script for CV Editor -->
+    <script src="cv-editor.js"></script>
+    
+    <!-- Script to add the custom URL functionality -->
+    <script>
+    // Add this custom URL support code without changing the existing functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const cvId = urlParams.get('id');
+        
+        if (cvId) {
+            // Check for custom URL
+            fetch(`/api/cv-meta/${cvId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.customUrlName) {
+                        // Display the custom URL
+                        const baseUrl = window.location.origin;
+                        const customUrl = `${baseUrl}/${data.customUrlName}`;
+                        
+                        document.getElementById('custom-url-link').href = customUrl;
+                        document.getElementById('custom-url-link').textContent = customUrl;
+                        document.getElementById('custom-url-container').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking custom URL:', error);
+                });
+        }
+    });
+    </script>
+</body>
+</html>

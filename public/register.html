@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - CV Builder</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+  <style>
+    :root {
+      --primary: #003459;
+      --secondary: #007ea7;
+      --accent: #00a8e8;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --border: #dee2e6;
+      --card-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.08);
+      --transition: all 0.25s ease;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Roboto', 'Inter', 'Segoe UI', sans-serif;
+    }
+    
+    body {
+      background-color: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .auth-container {
+      width: 100%;
+      max-width: 400px;
+      padding: 2rem;
+      background: white;
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+    }
+    
+    h1 {
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--dark);
+      font-weight: 500;
+    }
+    
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0, 168, 232, 0.1);
+    }
+    
+    .form-actions {
+      margin-top: 1.5rem;
+    }
+    
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    button:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+    }
+    
+    .auth-links {
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+    
+    .auth-links a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    
+    .auth-links a:hover {
+      color: var(--secondary);
+      text-decoration: underline;
+    }
+    
+    .error-message {
+      color: #dc3545;
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+      text-align: center;
+      font-size: 0.9rem;
+      min-height: 20px;
+    }
+    
+    .logo {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .logo i {
+      font-size: 2.5rem;
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="logo">
+      <i class="fas fa-file-alt"></i>
+    </div>
+    <h1>Create an Account</h1>
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required minlength="6">
+      </div>
+      <div class="form-actions">
+        <button type="submit">Register</button>
+      </div>
+      <div class="auth-links">
+        <p>Already have an account? <a href="login.html">Login</a></p>
+      </div>
+    </form>
+    <div id="errorMessage" class="error-message"></div>
+  </div>
+
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorElement = document.getElementById('errorMessage');
+      
+      try {
+        errorElement.textContent = '';
+        
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name, email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          // Redirect to dashboard after successful registration
+          window.location.href = '/dashboard';
+        } else {
+          errorElement.textContent = data.message || 'Registration failed';
+        }
+      } catch (error) {
+        errorElement.textContent = 'An error occurred. Please try again.';
+        console.error('Registration error:', error);
+      }
+    });
+  </script>
+</body>
+</html>
